@@ -6,6 +6,7 @@ export interface BadgeProps {
   size?: "sm" | "md";
   dot?: boolean;
   className?: string;
+  dotClassName?: string;
 }
 
 export const Badge: React.FC<BadgeProps> = ({
@@ -14,10 +15,11 @@ export const Badge: React.FC<BadgeProps> = ({
   size = "md",
   dot = false,
   className = "",
+  dotClassName = "badge-dot",
 }) => {
   return (
     <span className={`badge badge-${variant} badge-${size} ${className}`}>
-      {dot && <span className="badge-dot" />}
+      {dot && <span className={dotClassName} />}
       {children}
     </span>
   );

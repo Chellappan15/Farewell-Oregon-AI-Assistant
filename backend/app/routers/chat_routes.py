@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from chat.chat_requests import newChatCreation, delete_chat_request, get_chats_request
+from chat.chat_requests import newChatCreation, delete_chat_request, get_chats_request, retrieve_messages_request
 
 chat_router = APIRouter(
     prefix = '/chat'
@@ -16,3 +16,7 @@ def delete_chat_route(user_id: int, chat_id: int):
 @chat_router.get('/')
 def get_chats_routes(user_id: int):
     return get_chats_request(user_id)
+
+@chat_router.get('/retrieve-messages')
+def retrieve_messages(user_id: int, chat_id: int):
+    return retrieve_messages_request(user_id, chat_id)

@@ -54,9 +54,9 @@ config = types.GenerateContentConfig(
     tools=[tool]
 )
 
-def getResults(query:str, user_id: int, chat_id: str):
+def getResults(query:str, user_id: int, chat_id: int):
     # Chat history
-    history = get_chat_history(chat_id=1)
+    history = get_chat_history(chat_id=chat_id)
 
     # Context
     context = retrieve_context(query=query)
@@ -96,7 +96,7 @@ def getResults(query:str, user_id: int, chat_id: str):
         print(response.candidates[0].content.parts)
 
         if function_call:
-            return handlers(function_call, history, response, config, prompt, client)    
+            final_text = handlers(function_call, history, response, config, prompt, client)    
 
         else:
             final_text = response.text
@@ -111,6 +111,7 @@ def getResults(query:str, user_id: int, chat_id: str):
     now = datetime.now()
     chatProgress(
         id=user_id,
+        chat_title = query,
         data={
             "role": "model",
             "parts": [{"text": final_text}],

@@ -2,14 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { Crosshair, ShieldAlert, Zap, Skull, Loader2 } from "lucide-react";
 import MessageBubble from "./MessageBubble";
 import TypingIndicator from "./TypingIndicator";
-import type { ChatMessage } from "../../types/chat";
-
-export interface MessageListProps {
-  messages: ChatMessage[];
-  isLoading: boolean;
-  isMessagesLoading?: boolean;
-  onSelectPrompt?: (prompt: string) => void;
-}
+import { useChat } from "../../context/ChatContext";
 
 const SUGGESTED_PROMPTS = [
   {
@@ -34,17 +27,13 @@ const SUGGESTED_PROMPTS = [
   },
 ];
 
-export const MessageList: React.FC<MessageListProps> = ({
-  messages,
-  isLoading,
-  isMessagesLoading = false,
-  onSelectPrompt,
-}) => {
+export const MessageList: React.FC = () => {
+  const { messages, isMessagesLoading, isQueryProcessing, sendQuery } = useChat();
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isLoading, isMessagesLoading]);
+  }, [messages, isQueryProcessing, isMessagesLoading]);
 
   // 1. If messages are currently loading from endpoint, display the tactical loader
   if (isMessagesLoading) {
@@ -71,7 +60,7 @@ export const MessageList: React.FC<MessageListProps> = ({
 
         <h2 className="empty-title">Days Gone Survival Intelligence</h2>
         <p className="empty-subtitle">
-          Farewell Oregon AI assists survivors with Freaker combat tactics, horde pathing,
+          DevMind AI assists survivors with Freaker combat tactics, horde pathing,
           weapon stats, and Oregon wasteland survival strategies.
         </p>
 
@@ -81,7 +70,7 @@ export const MessageList: React.FC<MessageListProps> = ({
               key={idx}
               type="button"
               className="prompt-card"
-              onClick={() => onSelectPrompt?.(item.prompt)}
+              onClick={() => sendQuery(item.prompt)}
             >
               <div className="prompt-card-header">
                 <span className="prompt-card-icon">{item.icon}</span>
@@ -105,7 +94,7 @@ export const MessageList: React.FC<MessageListProps> = ({
         />
       ))}
 
-      {isLoading && <TypingIndicator />}
+      {isQueryProcessing && <TypingIndicator />}
 
       <div ref={bottomRef} className="scroll-anchor" />
     </div>

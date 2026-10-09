@@ -143,12 +143,21 @@ body,
   border: 1px solid var(--accent-emerald);
 }
 
-.badge-dot {
+.badge-dot-success {
   width: 6px;
   height: 6px;
   border-radius: 50%;
   background: #34d399;
   box-shadow: 0 0 8px #34d399;
+  animation: pulse-dot 2s infinite ease-in-out;
+}
+
+.badge-dot-failure {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #f00b0b;
+  box-shadow: 0 0 8px #f00b0b;
   animation: pulse-dot 2s infinite ease-in-out;
 }
 
@@ -422,6 +431,19 @@ body,
   color: var(--text-muted);
   text-align: center;
 }
+.sidebar-loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.sidebar-spinner {
+  color: var(--accent-emerald);
+  animation: spin 1s linear infinite;
+}
 
 /* Sidebar Bottom */
 .sidebar-bottom {
@@ -539,8 +561,12 @@ body,
   font-size: 11px;
   color: var(--text-muted);
 }
-.radio-pulse {
+.radio-pulse-success {
   color: var(--accent-emerald);
+  animation: pulse-dot 2.5s infinite ease-in-out;
+}
+.radio-pulse-failure {
+  color: var(--accent-red);
   animation: pulse-dot 2.5s infinite ease-in-out;
 }
 .header-loading-tag {
@@ -557,6 +583,10 @@ body,
 .header-loading-spinner {
   color: var(--accent-emerald);
   animation: spin 1.2s linear infinite;
+}
+
+.header-status-badge {
+  color: red;
 }
 
 /* Messages Loading Screen */

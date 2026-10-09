@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Gamepad2,
   Plus,
@@ -8,34 +9,44 @@ import {
   User,
   X,
   Trash2,
+  Loader2,
 } from "lucide-react";
-import type { ChatList } from "../../types/chat";
+import { useChat } from "../../context/ChatContext";
 import IconButton from "../common/IconButton";
 
 export interface SidebarProps {
-  chatHistory: ChatList[];
-  activeConversationId: string;
-  onSelectConversation: (id: string) => void;
-  onNewChat: () => void;
-  onDeleteConversation?: (id: string) => void;
   isOpen?: boolean;
   onClose?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
-  chatHistory,
-  activeConversationId,
-  onSelectConversation,
-  onNewChat,
-  onDeleteConversation,
   isOpen = true,
   onClose,
 }) => {
+  const navigate = useNavigate();
+  const {
+    chatList,
+    activeChatId,
+    isChatListLoading,
+    createNewChat,
+    deleteChat,
+  } = useChat();
+
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredConversations = chatHistory.filter((c) =>
-    c.chat_title.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredConversations = chatList.filter((c) =>
+    (c.chat_title || "").toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleSelectChat = (chatId: number) => {
+    navigate(`/chat/${chatId}`);
+    if (onClose) onClose();
+  };
+
+  const handleNewChatClick = async () => {
+    await createNewChat();
+    if (onClose) onClose();
+  };
 
   return (
     <>
@@ -54,7 +65,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
 
           <div className="logo-text">
-            <h2>Farewell Oregon AI</h2>
+            <h2>DevMind</h2>
             <span>Gaming Intelligence</span>
           </div>
 
@@ -73,7 +84,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <button
           type="button"
           className="new-chat-button"
-          onClick={onNewChat}
+          onClick={handleNewChatClick}
         >
           <Plus size={18} />
           <span>New Chat</span>
@@ -105,19 +116,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <p className="section-title">RECENT CONVERSATIONS</p>
 
           <div className="recent-list">
-            {filteredConversations.length > 0 ? (
+            {isChatListLoading ? (
+              <div className="sidebar-loading-state">
+                <Loader2 size={16} className="sidebar-spinner" />
+                <span>Loading chats...</span>
+              </div>
+            ) : filteredConversations.length > 0 ? (
               filteredConversations.map((conv) => {
-                const isActive = String(conv.chat_id) === activeConversationId;
+                const isActive = conv.chat_id === activeChatId;
                 return (
                   <div
-                    key={conv.id}
+                    key={conv.chat_id}
                     className={`chat-item ${isActive ? "active" : ""}`}
-                    onClick={() => onSelectConversation(String(conv.id))}
+                    onClick={() => handleSelectChat(conv.chat_id)}
                     role="button"
                     tabIndex={0}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === " ") {
-                        onSelectConversation(String(conv.id));
+                        handleSelectChat(conv.chat_id);
                       }
                     }}
                   >
@@ -126,19 +142,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       {conv.chat_title}
                     </span>
 
-                    {onDeleteConversation && (
-                      <button
-                        type="button"
-                        className="chat-item-delete"
-                        title="Delete chat"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onDeleteConversation(String(conv.id));
-                        }}
-                      >
-                        <Trash2 size={13} />
-                      </button>
-                    )}
+                    <button
+                      type="button"
+                      className="chat-item-delete"
+                      title="Delete chat"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteChat(conv.chat_id);
+                      }}
+                    >
+                      <Trash2 size={13} />
+                    </button>
                   </div>
                 );
               })

@@ -1,4 +1,4 @@
-from db.chat_queries import newChat, delete_chat_query, get_chats_query
+from db.chat_queries import newChat, delete_chat_query, get_chats_query, retrieve_messages
 import json
 
 def newChatCreation(user_id):
@@ -25,5 +25,13 @@ def get_chats_request(user_id: int):
     return ({
         "success": True,
         "message": "Chat list loaded successfully",
+        "data": data
+    })
+
+def retrieve_messages_request(user_id: int, chat_id: int):
+    data = retrieve_messages(user_id, chat_id)
+    return ({
+        "success": True,
+        "message": f"Chat history for chat_id: {chat_id}",
         "data": data
     })

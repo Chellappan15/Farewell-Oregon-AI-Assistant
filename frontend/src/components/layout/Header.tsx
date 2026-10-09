@@ -6,6 +6,7 @@ import {
   Radio,
   Loader2,
 } from "lucide-react";
+import { useChat } from "../../context/ChatContext";
 import IconButton from "../common/IconButton";
 import Badge from "../common/Badge";
 
@@ -13,17 +14,15 @@ export interface HeaderProps {
   onToggleSidebar?: () => void;
   onToggleIntelligence?: () => void;
   isIntelligenceOpen?: boolean;
-  onClearChat?: () => void;
-  isMessagesLoading?: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   onToggleSidebar,
   onToggleIntelligence,
   isIntelligenceOpen = true,
-  onClearChat,
-  isMessagesLoading = false,
 }) => {
+  const { isMessagesLoading, messages, clearActiveChat, serverStatus } = useChat();
+
   return (
     <header className="app-header">
       <div className="header-left">
@@ -39,7 +38,7 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="header-branding">
           <div className="header-title-wrapper">
             <h1 className="header-title">Days Gone Assistant</h1>
-            <Badge variant="success" size="sm" dot className="header-status-badge">
+            <Badge variant={serverStatus ? "success" : "warning"} size="sm" dot dotClassName={serverStatus ? "badge-dot-success" : "badge-dot-failure"} className="header-status-badge">
               AI Online
             </Badge>
           </div>
@@ -55,18 +54,18 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         ) : (
           <div className="header-indicator">
-            <Radio size={14} className="radio-pulse" />
+            <Radio size={14} className={serverStatus ? "radio-pulse-success" : "radio-pulse-failure" } />
             <span className="indicator-text">Oregon Radio Link Active</span>
           </div>
         )}
 
-        {!isMessagesLoading && onClearChat && (
+        {!isMessagesLoading && messages.length > 0 && (
           <IconButton
             icon={<RotateCcw size={16} />}
             label="Clear current conversation"
             variant="ghost"
             size="md"
-            onClick={onClearChat}
+            onClick={clearActiveChat}
           />
         )}
 
