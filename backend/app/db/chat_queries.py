@@ -159,8 +159,6 @@ def retrieve_messages(user_id: int, chat_id: int):
 
         if chat_id_in_db is None:
             return "Chat_id not available"
-        else: 
-            cursor.close()
 
         query = """
             SELECT chat_history
@@ -168,7 +166,7 @@ def retrieve_messages(user_id: int, chat_id: int):
             WHERE chat_id = (%s) AND id = (%s)
         """
 
-        cursor.execute(query, (chat_id, user_id))
+        cursor.execute(query, (chat_id, user_id, ))
         history = cursor.fetchone()
 
         if history is None or not history.get("chat_history"):
