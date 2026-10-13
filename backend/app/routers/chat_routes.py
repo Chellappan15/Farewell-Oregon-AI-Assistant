@@ -1,22 +1,32 @@
-from fastapi import APIRouter
-from chat.chat_requests import newChatCreation, delete_chat_request, get_chats_request, retrieve_messages_request
+from fastapi import APIRouter, Depends
+from chat.chat_requests import (
+    newChatCreation,
+    delete_chat_request,
+    get_chats_request,
+    retrieve_messages_request,
+)
+from utils.auth import get_current_user
 
 chat_router = APIRouter(
     prefix = '/chat'
 )
 
 @chat_router.get('/new-chat')
-def functionCall():
-    return newChatCreation(user_id = 1)
+def functionCall(current_user: dict = Depends(get_current_user)):
+    user_id = int(current_user["user_id"])
+    return newChatCreation(user_id = user_id)
 
 @chat_router.delete('/delete-chat')
-def delete_chat_route(user_id: int, chat_id: int):
-    return delete_chat_request(user_id, chat_id)
+def delete_chat_route(chat_id: int, current_user: dict = Depends(get_current_user)):
+    user_id = int(current_user["user_id"])
+    return delete_chat_request(user_id = user_id, chat_id = chat_id)
 
 @chat_router.get('/')
-def get_chats_routes(user_id: int):
-    return get_chats_request(user_id)
+def get_chats_routes(current_user: dict = Depends(get_current_user)):
+    user_id = int(current_user["user_id"])
+    return get_chats_request(user_id = user_id)
 
 @chat_router.get('/retrieve-messages')
-def retrieve_messages(user_id: int, chat_id: int):
-    return retrieve_messages_request(user_id, chat_id)
+def retrieve_messages(chat_id: int, current_user: dict = Depends(get_current_user)):
+    user_id = int(current_user["user_id"])
+    return retrieve_messages_request(user_id = user_id, chat_id = chat_id)

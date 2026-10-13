@@ -38,6 +38,11 @@ export interface ApiResponse<T = unknown> {
   data?: T;
 }
 
+export interface ErrorInterface {
+  success: boolean;
+  message: string;
+}
+
 export type NewChatResponse = ApiResponse<{ chatId: number }>;
 
 export type GetChatListResponse = ApiResponse<ChatList[]>;
@@ -61,7 +66,7 @@ export interface ChatContextType {
   createNewChat: () => Promise<number | null>;
   deleteChat: (chatId: number) => Promise<boolean>;
   fetchChatList: () => Promise<ChatList[]>;
-  fetchChatMessages: (chatId: number) => Promise<ChatMessage[]>;
+  fetchChatMessages: (chatId: number) => Promise<ChatMessage[] | ErrorInterface>;
   sendQuery: (query: string) => Promise<void>;
   clearActiveChat: () => void;
 }

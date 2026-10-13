@@ -1,116 +1,166 @@
 import json
-from db.connect import cursor, conn
+from db.connect import get_db_connection
 
 def get_chat_history(chat_id: int):
-    query = """
-        SELECT chat_history
-        FROM chat
-        WHERE chat_id = %s
-    """
+    conn = get_db_connection()
+    cursor = None
 
-    cursor.execute(query, (chat_id,))
-    history = cursor.fetchone()
+    try:
+        cursor = conn.cursor(dictionary=True)
 
-    print("Requested chat_id:", chat_id)
-    print("Database result:", history)
+        query = """
+            SELECT chat_history
+            FROM chat
+            WHERE chat_id = %s
+        """
 
-    if not history:
-        return []
+        cursor.execute(query, (chat_id,))
+        history = cursor.fetchone()
 
-    print("Chat history value:", history.get("chat_history"))
+        print("Requested chat_id:", chat_id)
+        print("Database result:", history)
 
-    return json.loads(history.get("chat_history"))
+        if not history:
+            return []
 
+        print("Chat history value:", history.get("chat_history"))
+        return json.loads(history.get("chat_history"))
+
+    finally:
+        if cursor is not None:
+            cursor.close()
+        conn.close()
 
 def chatProgress(id: int, chat_id: int, chat_title: str, data):
-    json_data = json.dumps(data)
+    conn = get_db_connection()
+    cursor = None
 
-    query = """
-        INSERT INTO chat (id, chat_id, chat_title, chat_history)
-        VALUES (
-            %s,
-            %s,
-            %s,
-            JSON_ARRAY(JSON_EXTRACT(%s, '$'))
+    try:
+        cursor = conn.cursor(dictionary=True)
+        json_data = json.dumps(data)
+
+        query = """
+            INSERT INTO chat (id, chat_id, chat_title, chat_history)
+            VALUES (
+                %s,
+                %s,
+                %s,
+                JSON_ARRAY(JSON_EXTRACT(%s, '$'))
+            )
+            ON DUPLICATE KEY UPDATE
+            chat_title = CASE
+                WHEN chat_title = 'New chat' THEN %s
+                ELSE chat_title
+            END,
+            chat_history = JSON_ARRAY_APPEND(
+                COALESCE(chat_history, JSON_ARRAY()),
+                '$',
+                JSON_EXTRACT(%s, '$')
+            )
+        """
+
+        cursor.execute(
+            query,
+            (id, chat_id, chat_title, json_data, chat_title, json_data)
         )
-        ON DUPLICATE KEY UPDATE
-        chat_title = CASE
-            WHEN chat_title = 'New chat' THEN %s
-            ELSE chat_title
-        END,
-        chat_history = JSON_ARRAY_APPEND(
-            COALESCE(chat_history, JSON_ARRAY()),
-            '$',
-            JSON_EXTRACT(%s, '$')
-        )
-    """
 
-    cursor.execute(
-        query,
-        (id, chat_id, chat_title, json_data, chat_title, json_data)
-    )
+        conn.commit()
 
-    conn.commit()
+    finally:
+        if cursor is not None:
+            cursor.close()
+        conn.close()
+
 # Front-end requests
 def get_chats_query(user_id: int):
-    query = """
+    conn = get_db_connection()
+    cursor = None
+
+    try:
+        cursor = conn.cursor(dictionary=True)
+
+        query = """
             SELECT chat_title, id, chat_id
             FROM chat
             WHERE id = (%s)
-            """
+        """
 
-    cursor.execute(
-        query,
-        (user_id, )
-    )
+        cursor.execute(query, (user_id,))
+        return cursor.fetchall()
 
-    return cursor.fetchall()
+    finally:
+        if cursor is not None:
+            cursor.close()
+        conn.close()
 
 def newChat(id):
-    query = """
-            INSERT INTO chat(id, chat_title) 
+    conn = get_db_connection()
+    cursor = None
+
+    try:
+        cursor = conn.cursor(dictionary=True)
+
+        query = """
+            INSERT INTO chat(id, chat_title)
             VALUES (%s, %s)
-            """
-    cursor.execute(
-        query,
-        (id, "New Chat", )
-    )
+        """
 
-    conn.commit()
+        cursor.execute(query, (id, "New Chat"))
+        conn.commit()
 
-    return cursor.lastrowid
+        return cursor.lastrowid
+
+    finally:
+        if cursor is not None:
+            cursor.close()
+        conn.close()
 
 def delete_chat_query(user_id: int, chat_id: int):
-    query =  """
-            DELETE 
+    conn = get_db_connection()
+    cursor = None
+
+    try:
+        cursor = conn.cursor(dictionary=True)
+
+        query = """
+            DELETE
             FROM chat
             WHERE chat_id = (%s) AND id = (%s)
-            """
+        """
 
-    cursor.execute(
-        query,
-        (chat_id, user_id, )
-    )
+        cursor.execute(query, (chat_id, user_id))
+        conn.commit()
 
-    conn.commit()
-    
-    return cursor.fetchall()
+        return cursor.fetchall()
+
+    finally:
+        if cursor is not None:
+            cursor.close()
+        conn.close()
+
 
 def retrieve_messages(user_id: int, chat_id: int):
-    query = """
+    conn = get_db_connection()
+    cursor = None
+
+    try:
+        cursor = conn.cursor(dictionary=True)
+
+        query = """
             SELECT chat_history
             FROM chat
             WHERE chat_id = (%s) AND id = (%s)
-            """
+        """
 
-    cursor.execute(
-        query, 
-        (chat_id, user_id, )
-    )
+        cursor.execute(query, (chat_id, user_id))
+        history = cursor.fetchone()
 
-    history = cursor.fetchone()
+        if history is None or not history.get("chat_history"):
+            return []
 
-    if not history.get("chat_history"):
-        return []
+        return json.loads(history.get("chat_history"))
 
-    return json.loads(history.get('chat_history'))
+    finally:
+        if cursor is not None:
+            cursor.close()
+        conn.close()

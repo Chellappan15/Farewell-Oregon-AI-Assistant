@@ -10,8 +10,10 @@ import {
   X,
   Trash2,
   Loader2,
+  LogOut,
 } from "lucide-react";
 import { useChat } from "../../context/ChatContext";
+import { useAuth } from "../../context/AuthContext";
 import IconButton from "../common/IconButton";
 
 export interface SidebarProps {
@@ -32,6 +34,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     deleteChat,
   } = useChat();
 
+  const { user, logout } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredConversations = chatList.filter((c) =>
@@ -46,6 +49,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const handleNewChatClick = async () => {
     await createNewChat();
     if (onClose) onClose();
+  };
+
+  const handleLogoutClick = () => {
+    logout();
+    navigate("/login");
   };
 
   return (
@@ -177,9 +185,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
 
             <div className="user-info">
-              <strong>Player</strong>
-              <span>Survivor • Lv. 32</span>
+              <strong title={user?.name || user?.email || "Player"}>
+                {user?.name || user?.email?.split("@")[0] || "Player"}
+              </strong>
+              <span title={user?.email || "Survivor"}>
+                {user?.email || "Survivor • Lv. 32"}
+              </span>
             </div>
+
+            <button
+              type="button"
+              className="logout-button"
+              title="Logout from terminal"
+              aria-label="Logout"
+              onClick={handleLogoutClick}
+            >
+              <LogOut size={16} />
+            </button>
           </div>
         </div>
       </aside>

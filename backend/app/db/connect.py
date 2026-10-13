@@ -1,6 +1,9 @@
 import mysql.connector
+from mysql.connector import pooling
 
-conn = mysql.connector.connect(
+connection_pool = pooling.MySQLConnectionPool(
+    pool_name="llm_pool",
+    pool_size=5,
     host="localhost",
     port=3306,
     user="root",
@@ -9,6 +12,6 @@ conn = mysql.connector.connect(
     ssl_disabled=True
 )
 
-print("Connected")
 
-cursor = conn.cursor(dictionary= True)
+def get_db_connection():
+    return connection_pool.get_connection()

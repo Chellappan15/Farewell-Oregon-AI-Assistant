@@ -1,9 +1,11 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from LLM import query_processing
 from routers.chat_routes import chat_router
+from routers.user_routes import user_router
 from db.chat_queries import chatProgress
 from datetime import datetime
 from fastapi.middleware.cors import CORSMiddleware
+from utils.auth import get_current_user
 
 app = FastAPI()
 
@@ -20,6 +22,7 @@ app.add_middleware(
 )
 
 app.include_router(chat_router)
+app.include_router(user_router)
 
 @app.get('/')
 def Home():
@@ -30,7 +33,8 @@ def Home():
     }
 
 @app.post('/{chat_id}')
-def Query(chat_id: int, query: str, user_id: int):
+def Query(chat_id: int, query: str, user_id_payload: dict = Depends(get_current_user)):
+    user_id = user_id_payload["user_id"]
     print("1. Query endpoint reached")
     print("2. chat_id:", chat_id)
     print("3. query:", query)
@@ -58,15 +62,3 @@ def Query(chat_id: int, query: str, user_id: int):
         user_id=user_id,
         chat_id=chat_id
     )
-    now = datetime.now()
-    print(query, chat_id)
-    chatProgress(user_id, chat_id = chat_id, chat_title = query, data = {
-        'role': 'user',
-        'parts': [
-            {
-                "text": query
-            }
-        ],
-        "time_stamp": now.strftime("%d-%m-%Y %H:%M %p")
-    })
-    return query_processing.getResults(query, user_id = 1, chat_id = chat_id)

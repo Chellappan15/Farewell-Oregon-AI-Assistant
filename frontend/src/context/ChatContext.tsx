@@ -6,8 +6,10 @@ import type {
   ChatList,
   ChatMessage,
   ChatContextType,
+  ErrorInterface,
 } from "../types/chat";
 import serverStatus from "../services/serverDetails";
+import { useAuth } from "./AuthContext";
 
 export const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
@@ -17,6 +19,8 @@ export interface ChatProviderProps {
 
 export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
+  const currentUserId = user?.id || 1;
 
   const [chatList, setChatList] = useState<ChatList[]>([]);
   const [activeChatId, setActiveChatId] = useState<number | null>(null);
@@ -41,13 +45,14 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
   /**
    * 1. Backend-Driven New Chat Creation
-   * Calls GET /chat/new-chat, extracts chatId, sets default title "New chat",
-   * updates state, and navigates to the dynamic route /chat/:chatId.
+   * Calls GET /chat/new-chat (authenticated via JWT Bearer token),
+   * extracts chatId, sets default title "New chat", updates state,
+   * and navigates to the dynamic route /chat/:chatId.
    */
   const handleCreateNewChat = async (): Promise<number | null> => {
     setError(null);
     try {
-      const response = await chatService.createNewChat(1);
+      const response = await chatService.createNewChat();
       const newChatId = response.data?.chatId;
 
       if (newChatId !== undefined && newChatId !== null) {
@@ -75,13 +80,13 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
   /**
    * 2. Chat Deletion
-   * Calls DELETE /chat/delete-chat?user_id=1&chat_id={chatId},
+   * Calls DELETE /chat/delete-chat?chat_id={chatId} (authenticated via JWT Bearer token),
    * removes chat from state, and redirects to / if currently active.
    */
   const handleDeleteChat = async (chatId: number): Promise<boolean> => {
     setError(null);
     try {
-      const response = await chatService.deleteChat(chatId, 1);
+      const response = await chatService.deleteChat(chatId);
       if (response.success) {
         setChatList((prev) => prev.filter((item) => item.chat_id !== chatId));
 
@@ -103,13 +108,13 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
   /**
    * 3. Chat History (Chat List) Retrieval
-   * Calls GET /chat/?user_id=1, exposes isChatListLoading.
+   * Calls GET /chat/ (authenticated via JWT Bearer token), exposes isChatListLoading.
    */
   const handleFetchChatList = async (): Promise<ChatList[]> => {
     setIsChatListLoading(true);
     setError(null);
     try {
-      const response = await chatService.getChatList(1);
+      const response = await chatService.getChatList();
       const list = response.success && Array.isArray(response.data) ? response.data : [];
       setChatList(list);
       return list;
@@ -125,22 +130,44 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
   /**
    * 4. Message Retrieval for specific chatId
-   * Calls GET /chat/retrieve-messages?user_id=1&chat_id={chatId},
+   * Calls GET /chat/retrieve-messages?chat_id={chatId} (authenticated via JWT Bearer token),
    * exposes isMessagesLoading.
    */
-  const handleFetchChatMessages = async (chatId: number): Promise<ChatMessage[]> => {
+
+  const handleFetchChatMessages = async (
+    chatId: number
+  ): Promise<ErrorInterface | ChatMessage[] > => {
     setIsMessagesLoading(true);
     setActiveChatId(chatId);
     setError(null);
+
     try {
-      const fetched = await chatService.getChatMessages(chatId, 1);
-      setMessages(fetched);
+      const fetched = await chatService.getChatMessages(chatId);
+
+      console.log("Fetched response:", fetched);
+      console.log("Is array:", Array.isArray(fetched));
+      console.log("Current path:", window.location.pathname);
+      if (Array.isArray(fetched)) {
+        setMessages(fetched);
+        return fetched;
+      }
+
+      if (!fetched.success) {
+        navigate("/", {
+          replace: true
+        });
+        return fetched;
+      }
+
       return fetched;
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to load messages";
+      const msg =
+        err instanceof Error ? err.message : "Failed to load messages";
+
       setError(msg);
       console.error(msg, err);
       setMessages([]);
+
       return [];
     } finally {
       setIsMessagesLoading(false);
@@ -149,7 +176,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
   /**
    * 5. Query Processing
-   * Calls POST /{chat_id}?query={query}&user_id=1,
+   * Calls POST /{chat_id}?query={query}&user_id={userId},
    * handles optimistic updates and exposes isQueryProcessing.
    */
   const handleSendQuery = async (query: string): Promise<void> => {
@@ -165,15 +192,9 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
       if (!targetChatId) return;
     }
 
-    const timestamp = new Date().toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-
     const userMessage: ChatMessage = {
       role: "user",
       content: trimmed,
-      timestamp,
     };
 
     setMessages((prev) => [...prev, userMessage]);
@@ -181,16 +202,12 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     setError(null);
 
     try {
-      const response = await chatService.processQuery(targetChatId, trimmed, 1);
+      const response = await chatService.processQuery(targetChatId, trimmed, currentUserId);
       const assistantText = response.data || response.message || "Response received.";
 
       const assistantMessage: ChatMessage = {
         role: "assistant",
         content: assistantText,
-        timestamp: new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
@@ -219,6 +236,21 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   const handleClearActiveChat = () => {
     setMessages([]);
   };
+
+  // When auth state changes, reload chat list or reset state
+  useEffect(() => {
+    const authenticateUser = () => {
+      if (isAuthenticated && user?.id) {
+        handleFetchChatList();
+      } else if (!isAuthenticated) {
+        setChatList([]);
+        setMessages([]);
+        setActiveChatId(null);
+      }
+    }
+
+    authenticateUser();
+  }, [isAuthenticated, user?.id]);
 
   const value: ChatContextType = {
     chatList,

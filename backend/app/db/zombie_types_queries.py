@@ -1,17 +1,25 @@
-from db.connect import cursor
+from db.connect import get_db_connection
 
 def get_zombie_details(zombie_name: str):
-    query = """
-            SELECT *
-            FROM zombie_details
-            WHERE name = (%s)
-            """
+    conn = get_db_connection()
+    cursor = None
 
-    cursor.execute(
-        query,
-        (zombie_name, )
-    )
+    try:
+        cursor = conn.cursor(dictionary=True)
 
-    result = cursor.fetchall()
+        query = """
+                SELECT *
+                FROM zombie_details
+                WHERE name = (%s)
+                """
 
-    return result
+        cursor.execute(query, (zombie_name,))
+
+        result = cursor.fetchall()
+
+        return result
+
+    finally:
+        if cursor is not None:
+            cursor.close()
+        conn.close()

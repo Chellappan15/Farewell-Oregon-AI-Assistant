@@ -8,6 +8,7 @@ from utils.compare_weapons import compare_weapons
 from tool_calling.handlers import handlers
 from datetime import datetime
 import json
+from utils.historyDTO import history_data_transform_object
 
 load_dotenv()
 
@@ -60,6 +61,10 @@ def getResults(query:str, user_id: int, chat_id: int):
 
     # Context
     context = retrieve_context(query=query)
+
+    if (len(history) > 0):
+        history_data_transform_object(history)
+        
     print(history, context)
 
     if history: 

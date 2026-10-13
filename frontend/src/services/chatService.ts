@@ -5,17 +5,16 @@ import type {
   ProcessQueryResponse,
   NewChatResponse,
   ChatMessage,
+  ErrorInterface
 } from "../types/chat";
 
 /**
  * 1. Creates a new chat on the backend.
- * Endpoint: GET /chat/new-chat
+ * Endpoint: GET /chat/new-chat (authenticated via JWT Bearer token)
  */
-export async function createNewChat(userId: number = 1): Promise<NewChatResponse> {
+export async function createNewChat(): Promise<NewChatResponse> {
   try {
-    const response = await apiClient.get<NewChatResponse>("/chat/new-chat", {
-      params: { user_id: userId },
-    });
+    const response = await apiClient.get<NewChatResponse>("/chat/new-chat");
     return response.data;
   } catch (error) {
     console.error("Failed to create new chat:", error);
@@ -24,17 +23,13 @@ export async function createNewChat(userId: number = 1): Promise<NewChatResponse
 }
 
 /**
- * 2. Deletes a specific chat by ID for a user.
- * Endpoint: DELETE /chat/delete-chat?user_id={userId}&chat_id={chatId}
+ * 2. Deletes a specific chat by ID.
+ * Endpoint: DELETE /chat/delete-chat?chat_id={chatId} (authenticated via JWT Bearer token)
  */
-export async function deleteChat(
-  chatId: number,
-  userId: number = 1
-): Promise<DeleteChatResponse> {
+export async function deleteChat(chatId: number): Promise<DeleteChatResponse> {
   try {
     const response = await apiClient.delete<DeleteChatResponse>("/chat/delete-chat", {
       params: {
-        user_id: userId,
         chat_id: chatId,
       },
     });
@@ -47,27 +42,29 @@ export async function deleteChat(
 
 /**
  * 3. Retrieves the message history for a specific chat.
- * Endpoint: GET /chat/retrieve-messages?user_id={userId}&chat_id={chatId}
+ * Endpoint: GET /chat/retrieve-messages?chat_id={chatId} (authenticated via JWT Bearer token)
  */
-export async function getChatMessages(
-  chatId: number,
-  userId: number = 1
-): Promise<ChatMessage[]> {
+export async function getChatMessages(chatId: number): Promise<ChatMessage[] | ErrorInterface> {
   try {
     const response = await apiClient.get<{
       data?: unknown[];
-      messages?: unknown[];
+      message?: string;
       success?: boolean;
     }>("/chat/retrieve-messages", {
       params: {
-        user_id: userId,
         chat_id: chatId,
       },
     });
 
+    if (response.status == 200 && !response?.data?.success) {
+      return {
+        success: response.data.success ?? false,
+        message: response.data.message ?? "Error retrieving data."
+      }
+    }
+
     const rawList =
       response.data?.data ||
-      response.data?.messages ||
       (Array.isArray(response.data) ? response.data : []);
     console.log("Message data: ", rawList);
 
@@ -101,7 +98,7 @@ export async function getChatMessages(
 
 /**
  * 4. Sends a query/message to the backend to process via LLM + RAG + Tools.
- * Endpoint: POST /{chat_id}?query={query}
+ * Preserved endpoint: POST /{chat_id}?query={query}&user_id={userId}
  */
 export async function processQuery(
   chatId: number,
@@ -127,14 +124,12 @@ export async function processQuery(
 }
 
 /**
- * 5. Retrieves the list of available chats for a user from the backend.
- * Endpoint: GET /chat/?user_id={userId}
+ * 5. Retrieves the list of available chats for the authenticated user.
+ * Endpoint: GET /chat/ (authenticated via JWT Bearer token)
  */
-export async function getChatList(userId: number = 1): Promise<GetChatListResponse> {
+export async function getChatList(): Promise<GetChatListResponse> {
   try {
-    const response = await apiClient.get<GetChatListResponse>("/chat/", {
-      params: { user_id: userId },
-    });
+    const response = await apiClient.get<GetChatListResponse>("/chat/");
     return response.data;
   } catch (error) {
     console.error("Failed to fetch chat list:", error);

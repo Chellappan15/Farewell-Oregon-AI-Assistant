@@ -30,8 +30,15 @@ def get_chats_request(user_id: int):
 
 def retrieve_messages_request(user_id: int, chat_id: int):
     data = retrieve_messages(user_id, chat_id)
-    return ({
-        "success": True,
-        "message": f"Chat history for chat_id: {chat_id}",
-        "data": data
-    })
+
+    if len(data) == 0:
+        return ({
+            "success": False,
+            "message": "Chat is not available"
+        })
+    else:
+        return ({
+            "success": True,
+            "message": f"Chat history for chat_id: {chat_id}",
+            "data": data
+        })
