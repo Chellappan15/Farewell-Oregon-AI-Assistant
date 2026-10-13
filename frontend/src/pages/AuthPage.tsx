@@ -334,11 +334,6 @@ export const AuthPage: React.FC = () => {
           )}
         </div>
       </div>
-
-      {/* Footer watermark */}
-      <div className="auth-watermark">
-        <span>DEV-MIND SURVIVOR ARCHIVE // OREGON SECTOR 7</span>
-      </div>
     </div>
   );
 };
