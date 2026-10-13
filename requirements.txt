@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+pydantic
+google-genai
+python-dotenv
+bcrypt
+PyJWT
+mysql-connector-python
+pypdf
+chromadb
+sentence-transformers
+langchain-text-splitters
