@@ -9,7 +9,6 @@ export const ChatPage: React.FC = () => {
     fetchChatList,
     fetchChatMessages,
     setActiveChatId,
-    clearActiveChat,
   } = useChat();
 
   // Load user's chat list on initial mount
@@ -26,7 +25,6 @@ export const ChatPage: React.FC = () => {
       }
     } else {
       setActiveChatId(null);
-      clearActiveChat();
     }
   }, [chatId]);
 

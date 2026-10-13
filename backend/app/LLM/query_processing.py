@@ -1,59 +1,17 @@
 import google.genai as genai
-from dotenv import load_dotenv
 import os
+import json
+from dotenv import load_dotenv
 from db.chat_queries import chatProgress, get_chat_history
 from rag.chromaDB import retrieve_context
-from google.genai import types
-from utils.compare_weapons import compare_weapons
 from tool_calling.handlers import handlers
 from datetime import datetime
-import json
-from utils.historyDTO import history_data_transform_object
+from utils.history_dto import history_data_transform_object
+from utils.tools.tools_definition import config
 
 load_dotenv()
 
 client = genai.Client(api_key=os.getenv('GEMINI_API_KEY'))
-
-tool = types.Tool(
-    function_declarations=[
-        {
-            "name": "compare_weapons",
-            "description": "Compares between 2 guns from the game.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "first": {
-                        "type": "string",
-                        "description": "The first weapon."
-                    },
-                    "second": {
-                        "type": "string",
-                        "description": "The second weapon."
-                    }
-                },
-                "required": ["first", "second"]
-            }
-        },
-        {
-            "name": "zombie_details",
-            "description": "Use this function whenever the user asks about a zombie/freaker in Days Gone, including its characteristics, behavior, weaknesses, or how to kill it.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "zombie_name": {
-                        "type": "string",
-                        "description": "The specific zombie/freaker type the user is asking about, such as Swarmers, Newts, Breakers, Reachers, or Screamers."
-                    }
-                },
-                "required": ["zombie_name"]
-            },
-        }
-    ]
-)
-
-config = types.GenerateContentConfig(
-    tools=[tool]
-)
 
 def getResults(query:str, user_id: int, chat_id: int):
     # Chat history

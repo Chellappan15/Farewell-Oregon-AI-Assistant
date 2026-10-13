@@ -146,6 +146,22 @@ def retrieve_messages(user_id: int, chat_id: int):
     try:
         cursor = conn.cursor(dictionary=True)
 
+        # Check if chat id exists
+        query = """
+        SELECT chat_id
+        FROM chat
+        WHERE id = (%s) and chat_id = (%s)
+        """
+
+        cursor.execute(query, (user_id, chat_id, ))
+
+        chat_id_in_db = cursor.fetchone()
+
+        if chat_id_in_db is None:
+            return "Chat_id not available"
+        else: 
+            cursor.close()
+
         query = """
             SELECT chat_history
             FROM chat

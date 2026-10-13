@@ -12,7 +12,7 @@ chat_router = APIRouter(
 )
 
 @chat_router.get('/new-chat')
-def functionCall(current_user: dict = Depends(get_current_user)):
+def chat_creation(current_user: dict = Depends(get_current_user)):
     user_id = int(current_user["user_id"])
     return newChatCreation(user_id = user_id)
 

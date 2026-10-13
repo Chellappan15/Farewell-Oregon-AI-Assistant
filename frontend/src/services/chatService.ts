@@ -8,10 +8,7 @@ import type {
   ErrorInterface
 } from "../types/chat";
 
-/**
- * 1. Creates a new chat on the backend.
- * Endpoint: GET /chat/new-chat (authenticated via JWT Bearer token)
- */
+// Chat creation
 export async function createNewChat(): Promise<NewChatResponse> {
   try {
     const response = await apiClient.get<NewChatResponse>("/chat/new-chat");
@@ -22,10 +19,7 @@ export async function createNewChat(): Promise<NewChatResponse> {
   }
 }
 
-/**
- * 2. Deletes a specific chat by ID.
- * Endpoint: DELETE /chat/delete-chat?chat_id={chatId} (authenticated via JWT Bearer token)
- */
+// Chat deletion
 export async function deleteChat(chatId: number): Promise<DeleteChatResponse> {
   try {
     const response = await apiClient.delete<DeleteChatResponse>("/chat/delete-chat", {
@@ -40,10 +34,7 @@ export async function deleteChat(chatId: number): Promise<DeleteChatResponse> {
   }
 }
 
-/**
- * 3. Retrieves the message history for a specific chat.
- * Endpoint: GET /chat/retrieve-messages?chat_id={chatId} (authenticated via JWT Bearer token)
- */
+// Retrieve chat messages
 export async function getChatMessages(chatId: number): Promise<ChatMessage[] | ErrorInterface> {
   try {
     const response = await apiClient.get<{
@@ -96,10 +87,7 @@ export async function getChatMessages(chatId: number): Promise<ChatMessage[] | E
   }
 }
 
-/**
- * 4. Sends a query/message to the backend to process via LLM + RAG + Tools.
- * Preserved endpoint: POST /{chat_id}?query={query}&user_id={userId}
- */
+// Query processing
 export async function processQuery(
   chatId: number,
   query: string,
@@ -123,10 +111,7 @@ export async function processQuery(
   }
 }
 
-/**
- * 5. Retrieves the list of available chats for the authenticated user.
- * Endpoint: GET /chat/ (authenticated via JWT Bearer token)
- */
+// Get the chat list
 export async function getChatList(): Promise<GetChatListResponse> {
   try {
     const response = await apiClient.get<GetChatListResponse>("/chat/");

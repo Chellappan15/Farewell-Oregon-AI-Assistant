@@ -74,14 +74,3 @@ def get_current_user(authorization: str = Header(None)) -> dict:
         )
 
     return verify_token(parts[1])
-
-def get_optional_user(authorization: str = Header(None)) -> dict:
-    if not authorization:
-        return None
-    try:
-        parts = authorization.split()
-        if len(parts) == 2 and parts[0].lower() == "bearer":
-            return verify_token(parts[1])
-    except Exception:
-        return None
-    return None

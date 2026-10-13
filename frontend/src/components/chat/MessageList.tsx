@@ -60,7 +60,7 @@ export const MessageList: React.FC = () => {
 
         <h2 className="empty-title">Days Gone Survival Intelligence</h2>
         <p className="empty-subtitle">
-          DevMind AI assists survivors with Freaker combat tactics, horde pathing,
+          Farewell oregon AI assists survivors with Freaker combat tactics, horde pathing,
           weapon stats, and Oregon wasteland survival strategies.
         </p>
 

@@ -3,7 +3,6 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional
 from fastapi import APIRouter, HTTPException, status, Depends
 from pydantic import BaseModel, Field, field_validator
-
 from db.user_queries import get_user_by_email, get_user_by_id, create_user
 from utils.auth import hash_password, verify_password, create_access_token, get_current_user
 

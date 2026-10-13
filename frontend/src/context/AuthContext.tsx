@@ -93,10 +93,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const handleRegister = async (credentials: RegisterCredentials): Promise<void> => {
-    // 1. Register survivor account
+    // Register
     await authService.register(credentials);
 
-    // 2. Automatically log in to issue JWT session
+    // Automatically log in to issue JWT session
     await handleLogin({
       email: credentials.email,
       password: credentials.password,

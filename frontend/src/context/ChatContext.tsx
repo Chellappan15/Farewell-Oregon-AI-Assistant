@@ -43,12 +43,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     fetchServerStatus();
   }, []);
 
-  /**
-   * 1. Backend-Driven New Chat Creation
-   * Calls GET /chat/new-chat (authenticated via JWT Bearer token),
-   * extracts chatId, sets default title "New chat", updates state,
-   * and navigates to the dynamic route /chat/:chatId.
-   */
+
+  // Handler for new chat creation
   const handleCreateNewChat = async (): Promise<number | null> => {
     setError(null);
     try {
@@ -78,11 +74,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     }
   };
 
-  /**
-   * 2. Chat Deletion
-   * Calls DELETE /chat/delete-chat?chat_id={chatId} (authenticated via JWT Bearer token),
-   * removes chat from state, and redirects to / if currently active.
-   */
+  // Handler for chat deletion
   const handleDeleteChat = async (chatId: number): Promise<boolean> => {
     setError(null);
     try {
@@ -106,10 +98,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     }
   };
 
-  /**
-   * 3. Chat History (Chat List) Retrieval
-   * Calls GET /chat/ (authenticated via JWT Bearer token), exposes isChatListLoading.
-   */
+  // Chat list history retrieval
   const handleFetchChatList = async (): Promise<ChatList[]> => {
     setIsChatListLoading(true);
     setError(null);
@@ -128,12 +117,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     }
   };
 
-  /**
-   * 4. Message Retrieval for specific chatId
-   * Calls GET /chat/retrieve-messages?chat_id={chatId} (authenticated via JWT Bearer token),
-   * exposes isMessagesLoading.
-   */
 
+  // Chat history retrieval
   const handleFetchChatMessages = async (
     chatId: number
   ): Promise<ErrorInterface | ChatMessage[] > => {
@@ -174,11 +159,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     }
   };
 
-  /**
-   * 5. Query Processing
-   * Calls POST /{chat_id}?query={query}&user_id={userId},
-   * handles optimistic updates and exposes isQueryProcessing.
-   */
+  // Query processing handlers
   const handleSendQuery = async (query: string): Promise<void> => {
     const trimmed = query.trim();
     if (!trimmed) return;
@@ -233,9 +214,9 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     }
   };
 
-  const handleClearActiveChat = () => {
-    setMessages([]);
-  };
+  // const handleClearActiveChat = () => {
+  //   setMessages([]);
+  // };
 
   // When auth state changes, reload chat list or reset state
   useEffect(() => {
@@ -267,7 +248,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     fetchChatList: handleFetchChatList,
     fetchChatMessages: handleFetchChatMessages,
     sendQuery: handleSendQuery,
-    clearActiveChat: handleClearActiveChat,
+    // clearActiveChat: handleClearActiveChat,
   };
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;

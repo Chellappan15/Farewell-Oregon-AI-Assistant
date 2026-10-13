@@ -1,7 +1,7 @@
 import React from "react";
 import {
   Menu,
-  RotateCcw,
+  // RotateCcw,
   Cpu,
   Radio,
   Loader2,
@@ -21,7 +21,7 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleIntelligence,
   isIntelligenceOpen = true,
 }) => {
-  const { isMessagesLoading, messages, clearActiveChat, serverStatus } = useChat();
+  const { isMessagesLoading, serverStatus } = useChat();
 
   return (
     <header className="app-header">
@@ -39,7 +39,7 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="header-title-wrapper">
             <h1 className="header-title">Days Gone Assistant</h1>
             <Badge variant={serverStatus ? "success" : "warning"} size="sm" dot dotClassName={serverStatus ? "badge-dot-success" : "badge-dot-failure"} className="header-status-badge">
-              AI Online
+              <p style={{color: serverStatus ? "#10b981" : "#ef4444"}}>{serverStatus ? "AI Online" : "AI Offline"}</p>
             </Badge>
           </div>
           <p className="header-subtitle">Survival intelligence for Days Gone</p>
@@ -55,11 +55,11 @@ export const Header: React.FC<HeaderProps> = ({
         ) : (
           <div className="header-indicator">
             <Radio size={14} className={serverStatus ? "radio-pulse-success" : "radio-pulse-failure" } />
-            <span className="indicator-text">Oregon Radio Link Active</span>
+            <span className="indicator-text">Oregon Radio Link {serverStatus ? "Active" : "Inactive"}</span>
           </div>
         )}
 
-        {!isMessagesLoading && messages.length > 0 && (
+        {/* {!isMessagesLoading && messages.length > 0 && (
           <IconButton
             icon={<RotateCcw size={16} />}
             label="Clear current conversation"
@@ -67,7 +67,7 @@ export const Header: React.FC<HeaderProps> = ({
             size="md"
             onClick={clearActiveChat}
           />
-        )}
+        )} */}
 
         {onToggleIntelligence && (
           <IconButton

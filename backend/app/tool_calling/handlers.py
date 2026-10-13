@@ -1,6 +1,6 @@
-from utils.compare_weapons import compare_weapons
+from utils.tools.compare_weapons import compare_weapons
 from google.genai import types
-from utils.zombie_types import zombie_details
+from utils.tools.zombie_types import zombie_details
 
 def handlers(function_call, history, response, config, prompt, client):
 

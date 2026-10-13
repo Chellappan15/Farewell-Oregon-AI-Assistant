@@ -73,7 +73,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
 
           <div className="logo-text">
-            <h2>DevMind</h2>
+            <h2>Farewell Oregon</h2>
             <span>Gaming Intelligence</span>
           </div>
 

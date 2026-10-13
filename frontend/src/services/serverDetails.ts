@@ -1,5 +1,6 @@
 import apiClient from "./api"
 
+// Function to check the server status
 export default async function serverStatus(): Promise<boolean> {
     try {
         const serverStats = await apiClient.get("/");

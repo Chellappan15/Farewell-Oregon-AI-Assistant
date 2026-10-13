@@ -68,5 +68,5 @@ export interface ChatContextType {
   fetchChatList: () => Promise<ChatList[]>;
   fetchChatMessages: (chatId: number) => Promise<ChatMessage[] | ErrorInterface>;
   sendQuery: (query: string) => Promise<void>;
-  clearActiveChat: () => void;
+  // clearActiveChat: () => void;
 }

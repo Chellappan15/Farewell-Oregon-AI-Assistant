@@ -1,5 +1,5 @@
-from db.chat_queries import newChat, delete_chat_query, get_chats_query, retrieve_messages
 import json
+from db.chat_queries import newChat, delete_chat_query, get_chats_query, retrieve_messages
 
 def newChatCreation(user_id):
     chat_id = newChat(id = user_id)
@@ -31,7 +31,7 @@ def get_chats_request(user_id: int):
 def retrieve_messages_request(user_id: int, chat_id: int):
     data = retrieve_messages(user_id, chat_id)
 
-    if len(data) == 0:
+    if data == "Chat_id not available":
         return ({
             "success": False,
             "message": "Chat is not available"

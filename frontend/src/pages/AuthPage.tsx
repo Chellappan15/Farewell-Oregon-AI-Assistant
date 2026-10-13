@@ -22,7 +22,7 @@ export const AuthPage: React.FC = () => {
   const { isAuthenticated, login, register } = useAuth();
 
   const isRegisterRoute = location.pathname.includes("/register");
-  const [isRegister, setIsRegister] = useState(isRegisterRoute);
+  const isRegister = isRegisterRoute;
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -33,12 +33,6 @@ export const AuthPage: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-
-  // Sync state if URL route changes
-  useEffect(() => {
-    setIsRegister(location.pathname.includes("/register"));
-    setErrorMessage(null);
-  }, [location.pathname]);
 
   // If already logged in, redirect to destination or home
   useEffect(() => {
@@ -159,7 +153,7 @@ export const AuthPage: React.FC = () => {
             type="button"
             className={`auth-tab-btn ${!isRegister ? "active" : ""}`}
             onClick={() => {
-              setIsRegister(false);
+              setErrorMessage(null);
               navigate("/login");
             }}
           >
@@ -169,7 +163,7 @@ export const AuthPage: React.FC = () => {
             type="button"
             className={`auth-tab-btn ${isRegister ? "active" : ""}`}
             onClick={() => {
-              setIsRegister(true);
+              setErrorMessage(null);
               navigate("/register");
             }}
           >
