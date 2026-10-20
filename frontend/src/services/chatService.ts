@@ -95,7 +95,7 @@ export async function processQuery(
 ): Promise<ProcessQueryResponse> {
   try {
     const response = await apiClient.post<ProcessQueryResponse>(
-      `/${chatId}`,
+      `/chat/${chatId}`,
       null,
       {
         params: {

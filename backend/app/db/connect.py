@@ -12,6 +12,5 @@ connection_pool = pooling.MySQLConnectionPool(
     ssl_disabled=True
 )
 
-
 def get_db_connection():
     return connection_pool.get_connection()

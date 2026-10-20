@@ -138,7 +138,6 @@ def delete_chat_query(user_id: int, chat_id: int):
             cursor.close()
         conn.close()
 
-
 def retrieve_messages(user_id: int, chat_id: int):
     conn = get_db_connection()
     cursor = None
