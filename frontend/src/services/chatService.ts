@@ -1,4 +1,4 @@
-import apiClient from "./api";
+import apiClient, { API_BASE_URL } from "./api";
 import type {
   GetChatListResponse,
   DeleteChatResponse,
@@ -111,6 +111,45 @@ export async function processQuery(
   }
 }
 
+// Streaming query processing: calls onChunk with each text chunk as it arrives
+export async function processQueryStream(
+  chatId: number,
+  query: string,
+  onChunk: (chunk: string) => void
+): Promise<string> {
+  try {
+    const token = localStorage.getItem("dg_auth_token");
+    const url = `${API_BASE_URL}/chat/${chatId}/stream?${new URLSearchParams({ query })}`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+
+    if (!response.ok || !response.body) {
+      throw new Error(`Stream request failed with status ${response.status}`);
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let fullText = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const chunk = decoder.decode(value, { stream: true });
+      if (chunk) {
+        fullText += chunk;
+        onChunk(chunk);
+      }
+    }
+
+    return fullText;
+  } catch (error) {
+    console.error(`Failed to stream query for chat ${chatId}:`, error);
+    throw error;
+  }
+}
+
 // Get the chat list
 export async function getChatList(): Promise<GetChatListResponse> {
   try {
@@ -127,5 +166,6 @@ export default {
   deleteChat,
   getChatMessages,
   processQuery,
+  processQueryStream,
   getChatList,
 };

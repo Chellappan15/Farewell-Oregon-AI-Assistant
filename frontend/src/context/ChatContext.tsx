@@ -20,7 +20,6 @@ export interface ChatProviderProps {
 export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
-  const currentUserId = user?.id || 1;
 
   const [chatList, setChatList] = useState<ChatList[]>([]);
   const [activeChatId, setActiveChatId] = useState<number | null>(null);
@@ -183,15 +182,19 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     setError(null);
 
     try {
-      const response = await chatService.processQuery(targetChatId, trimmed, currentUserId);
-      const assistantText = response.data || response.message || "Response received.";
-
-      const assistantMessage: ChatMessage = {
-        role: "assistant",
-        content: assistantText,
-      };
-
-      setMessages((prev) => [...prev, assistantMessage]);
+      let hasStarted = false;
+      await chatService.processQueryStream(targetChatId, trimmed, (chunk) => {
+        const isFirstChunk = !hasStarted;
+        hasStarted = true;
+        setMessages((prev) => {
+          // First chunk adds the assistant message, later chunks append to it
+          if (isFirstChunk) {
+            return [...prev, { role: "assistant", content: chunk }];
+          }
+          const last = prev[prev.length - 1];
+          return [...prev.slice(0, -1), { ...last, content: last.content + chunk }];
+        });
+      });
 
       // If chat had default title "New chat", update title with query excerpt
       setChatList((prev) =>

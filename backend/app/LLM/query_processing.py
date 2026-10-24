@@ -62,3 +62,58 @@ def getResults(query:str, user_id: int, chat_id: int):
         "success": True,
         "message": "The solution to the query"
     })
+
+def getResultsStream(query: str, user_id: int, chat_id: int):
+    # Chat history
+    history = get_chat_history(chat_id=chat_id)
+
+    # Context
+    context = retrieve_context(query=query)
+
+    prompt = render_gemini_prompt(
+        query=query,
+        context=context,
+        history=history,
+    )
+
+    final_text = ""
+    stream = get_gemini_client().models.generate_content_stream(
+        model="gemini-3.1-flash-lite",
+        contents=prompt,
+        config=config
+    )
+
+    for chunk in stream:
+        function_calls = chunk.function_calls
+        if function_calls:
+            # Tool calls are resolved by the existing handler, which returns the full text
+            tool_text = handlers(
+                function_calls[0],
+                history,
+                chunk,
+                config,
+                prompt,
+                get_gemini_client(),
+            )
+            final_text += tool_text
+            yield tool_text
+            break
+
+        if chunk.text:
+            final_text += chunk.text
+            yield chunk.text
+
+    logger.info("Gemini stream completed with %d characters", len(final_text))
+
+    # Save final output once the stream is complete
+    now = datetime.now()
+    chatProgress(
+        id=user_id,
+        chat_title = query,
+        data={
+            "role": "model",
+            "parts": [{"text": final_text}],
+            "time_stamp": now.strftime("%d-%m-%Y %H:%M %p")
+        },
+        chat_id=chat_id
+    )

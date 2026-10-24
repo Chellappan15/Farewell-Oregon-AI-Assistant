@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends
+from fastapi.responses import StreamingResponse
 
 from auth.dependencies import get_current_user
 from services.chat_service import (
@@ -7,6 +8,7 @@ from services.chat_service import (
     get_chat_messages,
     list_chats,
     process_chat_query,
+    process_chat_query_stream,
 )
 
 chat_router = APIRouter(prefix="/chat")
@@ -43,4 +45,19 @@ def query_chat(
         user_id=int(current_user["user_id"]),
         chat_id=chat_id,
         query=query,
+    )
+
+@chat_router.post("/{chat_id}/stream")
+def query_chat_stream(
+    chat_id: int,
+    query: str,
+    current_user: dict = Depends(get_current_user),
+):
+    return StreamingResponse(
+        process_chat_query_stream(
+            user_id=int(current_user["user_id"]),
+            chat_id=chat_id,
+            query=query,
+        ),
+        media_type="text/plain; charset=utf-8",
     )

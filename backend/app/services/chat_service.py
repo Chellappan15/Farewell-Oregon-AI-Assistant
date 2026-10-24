@@ -7,7 +7,7 @@ from db.chat_queries import (
     newChat,
     retrieve_messages,
 )
-from LLM.query_processing import getResults
+from LLM.query_processing import getResults, getResultsStream
 
 def create_chat(user_id: int):
     chat_id = newChat(id=user_id)
@@ -51,3 +51,17 @@ def process_chat_query(user_id: int, chat_id: int, query: str):
         },
     )
     return getResults(query, user_id=user_id, chat_id=chat_id)
+
+def process_chat_query_stream(user_id: int, chat_id: int, query: str):
+    now = datetime.now()
+    chatProgress(
+        user_id,
+        chat_id=chat_id,
+        chat_title=query,
+        data={
+            "role": "user",
+            "parts": [{"text": query}],
+            "time_stamp": now.strftime("%d-%m-%Y %H:%M %p"),
+        },
+    )
+    return getResultsStream(query, user_id=user_id, chat_id=chat_id)

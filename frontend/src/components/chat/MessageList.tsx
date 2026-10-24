@@ -94,7 +94,7 @@ export const MessageList: React.FC = () => {
         />
       ))}
 
-      {isQueryProcessing && <TypingIndicator />}
+      {isQueryProcessing && messages[messages.length - 1]?.role !== "assistant" && <TypingIndicator />}
 
       <div ref={bottomRef} className="scroll-anchor" />
     </div>
