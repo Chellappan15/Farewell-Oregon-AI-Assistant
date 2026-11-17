@@ -26,9 +26,8 @@ def handlers(function_call, history, response, config, prompt, client):
             name=function_call.name,
             response={"content": result if result is not None else ""},
         )
-        content_history = history[:-2] if len(history) > 2 else []
         content = [
-            *content_history,
+            *history,
             types.Content(
                 role="user",
                 parts=[types.Part.from_text(text=prompt)],

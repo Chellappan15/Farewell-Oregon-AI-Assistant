@@ -14,10 +14,14 @@ _BACKEND_DIR = Path(__file__).resolve().parents[2]
 load_dotenv(_BACKEND_DIR / ".env")
 
 
+_missing_required: list[str] = []
+
+
 def _env(name: str, default: str | None = None, *, required: bool = False) -> str | None:
     value = os.getenv(name, default)
     if required and not value:
-        raise RuntimeError(f"{name} must be configured in the environment.")
+        # Collected and reported together after Settings() is built.
+        _missing_required.append(name)
     return value
 
 
@@ -44,7 +48,13 @@ class Settings:
     # SSL is ON unless explicitly disabled (only do that for local development).
     db_ssl_disabled: bool = field(default_factory=lambda: _env_bool("DB_SSL_DISABLED", False))
 
+    # Auth
+    jwt_secret: str = field(default_factory=lambda: _env("JWT_SECRET", required=True))
+    jwt_algorithm: str = field(default_factory=lambda: _env("JWT_ALGORITHM", "HS256"))
+    jwt_expiration_hours: int = field(default_factory=lambda: int(_env("JWT_EXPIRATION_HOURS", "24")))
+
     # LLM
+    gemini_api_key: str = field(default_factory=lambda: _env("GEMINI_API_KEY", required=True))
     gemini_model: str = field(default_factory=lambda: _env("GEMINI_MODEL", "gemini-3.1-flash-lite"))
 
     # RAG
@@ -55,7 +65,7 @@ class Settings:
         default_factory=lambda: _env("CHROMA_DB_PATH", str(_BACKEND_DIR / "chroma_db"))
     )
     chroma_collection: str = field(default_factory=lambda: _env("CHROMA_COLLECTION", "days_gone"))
-    retrieval_top_k: int = field(default_factory=lambda: int(_env("RETRIEVAL_TOP_K", "10")))
+    retrieval_top_k: int = field(default_factory=lambda: int(_env("RETRIEVAL_TOP_K", "5")))
     # Chunks with a distance above this are dropped (lower = more similar).
     retrieval_max_distance: float = field(
         default_factory=lambda: float(_env("RETRIEVAL_MAX_DISTANCE", "1.2"))
@@ -69,5 +79,22 @@ class Settings:
         default_factory=lambda: _env_list("CORS_ORIGINS", "http://localhost:5173")
     )
 
+    # Context token budget
+    tokens: int = field(
+        default=3000
+    )
+
+    # Chat history
+    chat_history: int = field(
+        default=3000
+    )
+
 
 settings = Settings()
+
+if _missing_required:
+    raise RuntimeError(
+        "Missing required environment variables: "
+        + ", ".join(_missing_required)
+        + ". Add them to backend/.env (see backend/.env.example)."
+    )

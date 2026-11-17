@@ -1,19 +1,14 @@
-import os
 from datetime import datetime, timedelta, timezone
 
 import bcrypt
 import jwt
-from dotenv import load_dotenv
 from fastapi import HTTPException, status
 
-load_dotenv()
+from core.config import settings
 
-JWT_SECRET = os.getenv("JWT_SECRET")
-JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
-JWT_EXPIRATION_HOURS = int(os.getenv("JWT_EXPIRATION_HOURS", "24"))
-
-if not JWT_SECRET:
-    raise RuntimeError("JWT_SECRET must be configured in the environment.")
+JWT_SECRET = settings.jwt_secret
+JWT_ALGORITHM = settings.jwt_algorithm
+JWT_EXPIRATION_HOURS = settings.jwt_expiration_hours
 
 def hash_password(password: str) -> str:
     return bcrypt.hashpw(

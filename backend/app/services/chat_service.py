@@ -8,7 +8,7 @@ from db.chat_queries import (
 from LLM.query_processing import getResults, getResultsStream
 from services.exceptions import ChatNotFoundError
 from utils.time_utils import utc_now_iso
-
+from LLM.token_estimator import estimator
 
 def create_chat(user_id: int):
     chat_id = newChat(id=user_id)
@@ -65,6 +65,7 @@ def _save_user_message(user_id: int, chat_id: int, query: str) -> None:
             "role": "user",
             "parts": [{"text": query}],
             "time_stamp": utc_now_iso(),
+            "token": estimator(query)
         },
     )
     if updated_rows == 0:

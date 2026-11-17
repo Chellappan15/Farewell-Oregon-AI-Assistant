@@ -19,10 +19,9 @@ def render_gemini_prompt(
 ) -> str:
     """Render the shared Gemini prompt for a chat request."""
     template = _environment.get_template("days_gone_prompt.j2")
-    conversation_history = history[:-2] if len(history) > 2 else []
 
     return template.render(
         current_question=query,
         relevant_context=context,
-        conversation_history=conversation_history,
+        conversation_history=history,
     )
