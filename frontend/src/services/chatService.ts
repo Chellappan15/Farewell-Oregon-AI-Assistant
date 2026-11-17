@@ -1,3 +1,4 @@
+import axios from "axios";
 import apiClient, { API_BASE_URL } from "./api";
 import type {
   GetChatListResponse,
@@ -11,7 +12,7 @@ import type {
 // Chat creation
 export async function createNewChat(): Promise<NewChatResponse> {
   try {
-    const response = await apiClient.get<NewChatResponse>("/chat/new-chat");
+    const response = await apiClient.post<NewChatResponse>("/chat/new-chat");
     return response.data;
   } catch (error) {
     console.error("Failed to create new chat:", error);
@@ -29,6 +30,9 @@ export async function deleteChat(chatId: number): Promise<DeleteChatResponse> {
     });
     return response.data;
   } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 404) {
+      return error.response.data as DeleteChatResponse;
+    }
     console.error(`Failed to delete chat ${chatId}:`, error);
     throw error;
   }
@@ -82,6 +86,12 @@ export async function getChatMessages(chatId: number): Promise<ChatMessage[] | E
       };
     });
   } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 404) {
+      return {
+        success: false,
+        message: error.response.data?.message ?? "Chat is not available",
+      };
+    }
     console.error(`Failed to fetch messages for chat ${chatId}:`, error);
     throw error;
   }
@@ -90,19 +100,12 @@ export async function getChatMessages(chatId: number): Promise<ChatMessage[] | E
 // Query processing
 export async function processQuery(
   chatId: number,
-  query: string,
-  userId: number = 1
+  query: string
 ): Promise<ProcessQueryResponse> {
   try {
     const response = await apiClient.post<ProcessQueryResponse>(
       `/chat/${chatId}`,
-      null,
-      {
-        params: {
-          query,
-          user_id: userId,
-        },
-      }
+      { query }
     );
     return response.data;
   } catch (error) {
@@ -119,10 +122,14 @@ export async function processQueryStream(
 ): Promise<string> {
   try {
     const token = localStorage.getItem("dg_auth_token");
-    const url = `${API_BASE_URL}/chat/${chatId}/stream?${new URLSearchParams({ query })}`;
+    const url = `${API_BASE_URL}/chat/${chatId}/stream`;
     const response = await fetch(url, {
       method: "POST",
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({ query }),
     });
 
     if (!response.ok || !response.body) {

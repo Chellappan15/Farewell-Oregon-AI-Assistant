@@ -1,7 +1,11 @@
 import json
+import logging
+
 from db.connect import get_db_connection
 
-def get_chat_history(chat_id: int):
+logger = logging.getLogger(__name__)
+
+def get_chat_history(chat_id: int, user_id: int):
     conn = get_db_connection()
     cursor = None
 
@@ -11,19 +15,16 @@ def get_chat_history(chat_id: int):
         query = """
             SELECT chat_history
             FROM chat
-            WHERE chat_id = %s
+            WHERE chat_id = %s and id = %s
         """
 
-        cursor.execute(query, (chat_id,))
+        cursor.execute(query, (chat_id, user_id, ))
         history = cursor.fetchone()
 
-        print("Requested chat_id:", chat_id)
-        print("Database result:", history)
-
-        if not history:
+        if not history or not history.get("chat_history"):
+            logger.info("No history found for chat_id=%s", chat_id)
             return []
 
-        print("Chat history value:", history.get("chat_history"))
         return json.loads(history.get("chat_history"))
 
     finally:
@@ -131,7 +132,7 @@ def delete_chat_query(user_id: int, chat_id: int):
         cursor.execute(query, (chat_id, user_id))
         conn.commit()
 
-        return cursor.fetchall()
+        return cursor.rowcount
 
     finally:
         if cursor is not None:
@@ -157,7 +158,7 @@ def retrieve_messages(user_id: int, chat_id: int):
         chat_id_in_db = cursor.fetchone()
 
         if chat_id_in_db is None:
-            return "Chat_id not available"
+            return None
 
         query = """
             SELECT chat_history

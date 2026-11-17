@@ -21,7 +21,15 @@ There is no previous chat history.
 {% endif %}
 
 Relevant game context:
-{{ relevant_context }}
+{% if relevant_context %}
+{% for chunk in relevant_context %}
+[Source {{ loop.index }}: {{ chunk.source }}]
+{{ chunk.text }}
+
+{% endfor %}
+{% else %}
+No relevant game context was found for this question.
+{% endif %}
 
 Current question:
 {{ current_question }}

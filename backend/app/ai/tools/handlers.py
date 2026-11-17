@@ -1,5 +1,7 @@
 import logging
 
+from core.config import settings
+
 from google.genai import types
 
 from ai.tools.compare_weapons import compare_weapons
@@ -38,7 +40,7 @@ def handlers(function_call, history, response, config, prompt, client):
             ),
         ]
         response = client.models.generate_content(
-            model="gemini-3.1-flash-lite",
+            model=settings.gemini_model,
             contents=content,
             config=config,
         )

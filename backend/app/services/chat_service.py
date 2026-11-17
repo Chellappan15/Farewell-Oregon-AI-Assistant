@@ -8,6 +8,8 @@ from db.chat_queries import (
     retrieve_messages,
 )
 from LLM.query_processing import getResults, getResultsStream
+from services.exceptions import ChatNotFoundError
+
 
 def create_chat(user_id: int):
     chat_id = newChat(id=user_id)
@@ -17,9 +19,13 @@ def create_chat(user_id: int):
         "data": {"chatId": chat_id},
     }
 
+
 def delete_chat(user_id: int, chat_id: int):
-    delete_chat_query(user_id, chat_id)
+    deleted_rows = delete_chat_query(user_id, chat_id)
+    if deleted_rows == 0:
+        raise ChatNotFoundError(chat_id)
     return {"success": True, "message": "Chat deleted successfully"}
+
 
 def list_chats(user_id: int):
     return {
@@ -28,15 +34,17 @@ def list_chats(user_id: int):
         "data": get_chats_query(user_id),
     }
 
+
 def get_chat_messages(user_id: int, chat_id: int):
     data = retrieve_messages(user_id, chat_id)
-    if data == "Chat_id not available":
-        return {"success": False, "message": "Chat is not available"}
+    if data is None:
+        raise ChatNotFoundError(chat_id)
     return {
         "success": True,
         "message": f"Chat history for chat_id: {chat_id}",
         "data": data,
     }
+
 
 def process_chat_query(user_id: int, chat_id: int, query: str):
     now = datetime.now()
@@ -51,6 +59,7 @@ def process_chat_query(user_id: int, chat_id: int, query: str):
         },
     )
     return getResults(query, user_id=user_id, chat_id=chat_id)
+
 
 def process_chat_query_stream(user_id: int, chat_id: int, query: str):
     now = datetime.now()

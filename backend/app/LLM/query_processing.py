@@ -1,4 +1,6 @@
 import logging
+
+from core.config import settings
 from ai.gemini_client import get_gemini_client
 from db.chat_queries import chatProgress, get_chat_history
 from rag.retriever import retrieve_context
@@ -11,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 def getResults(query:str, user_id: int, chat_id: int):
     # Chat history
-    history = get_chat_history(chat_id=chat_id)
+    history = get_chat_history(chat_id=chat_id, user_id=user_id)
 
     # Context
     context = retrieve_context(query=query)
@@ -23,7 +25,7 @@ def getResults(query:str, user_id: int, chat_id: int):
     )
 
     response = get_gemini_client().models.generate_content(
-        model="gemini-3.1-flash-lite",
+        model=settings.gemini_model,
         contents=prompt,
         config=config
     )
@@ -65,7 +67,7 @@ def getResults(query:str, user_id: int, chat_id: int):
 
 def getResultsStream(query: str, user_id: int, chat_id: int):
     # Chat history
-    history = get_chat_history(chat_id=chat_id)
+    history = get_chat_history(chat_id=chat_id, user_id=user_id)
 
     # Context
     context = retrieve_context(query=query)
@@ -78,7 +80,7 @@ def getResultsStream(query: str, user_id: int, chat_id: int):
 
     final_text = ""
     stream = get_gemini_client().models.generate_content_stream(
-        model="gemini-3.1-flash-lite",
+        model=settings.gemini_model,
         contents=prompt,
         config=config
     )
