@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { User, Bot, Copy, Check } from "lucide-react";
 import type { ChatMessage } from "../../types/chat";
+import { formatTimestamp } from "../../utils/formatTimestamp";
 
 export interface MessageBubbleProps {
   message: ChatMessage;
@@ -33,7 +34,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
             {isUser ? "Survivor (Player)" : "Farewell Oregon AI Assistant"}
           </span>
           {message.timestamp && (
-            <span className="message-timestamp">{message.timestamp}</span>
+            <span className="message-timestamp">{formatTimestamp(message.timestamp)}</span>
           )}
 
           <button

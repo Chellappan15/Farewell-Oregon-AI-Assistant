@@ -32,7 +32,13 @@ def get_chat_history(chat_id: int, user_id: int):
             cursor.close()
         conn.close()
 
-def chatProgress(id: int, chat_id: int, chat_title: str, data):
+def chatProgress(id: int, chat_id: int, chat_title: str, data) -> int:
+    """Append a message to a chat owned by `id`.
+
+    Only updates an existing row that belongs to the user, so it can never
+    write into another user's chat or create a chat with an arbitrary ID.
+    Returns the number of rows updated (0 = chat not found / not owned).
+    """
     conn = get_db_connection()
     cursor = None
 
@@ -41,31 +47,24 @@ def chatProgress(id: int, chat_id: int, chat_title: str, data):
         json_data = json.dumps(data)
 
         query = """
-            INSERT INTO chat (id, chat_id, chat_title, chat_history)
-            VALUES (
-                %s,
-                %s,
-                %s,
-                JSON_ARRAY(JSON_EXTRACT(%s, '$'))
-            )
-            ON DUPLICATE KEY UPDATE
-            chat_title = CASE
-                WHEN chat_title = 'New chat' THEN %s
-                ELSE chat_title
-            END,
-            chat_history = JSON_ARRAY_APPEND(
-                COALESCE(chat_history, JSON_ARRAY()),
-                '$',
-                JSON_EXTRACT(%s, '$')
-            )
+            UPDATE chat
+            SET
+                chat_title = CASE
+                    WHEN chat_title = 'New Chat' THEN %s
+                    ELSE chat_title
+                END,
+                chat_history = JSON_ARRAY_APPEND(
+                    COALESCE(chat_history, JSON_ARRAY()),
+                    '$',
+                    JSON_EXTRACT(%s, '$')
+                )
+            WHERE chat_id = %s AND id = %s
         """
 
-        cursor.execute(
-            query,
-            (id, chat_id, chat_title, json_data, chat_title, json_data)
-        )
-
+        cursor.execute(query, (chat_title, json_data, chat_id, id))
         conn.commit()
+
+        return cursor.rowcount
 
     finally:
         if cursor is not None:

@@ -175,6 +175,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     const userMessage: ChatMessage = {
       role: "user",
       content: trimmed,
+      timestamp: new Date().toISOString(),
     };
 
     setMessages((prev) => [...prev, userMessage]);

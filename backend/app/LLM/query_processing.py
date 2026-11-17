@@ -5,7 +5,7 @@ from ai.gemini_client import get_gemini_client
 from db.chat_queries import chatProgress, get_chat_history
 from rag.retriever import retrieve_context
 from ai.tools.handlers import handlers
-from datetime import datetime
+from utils.time_utils import utc_now_iso
 from LLM.prompt_renderer import render_gemini_prompt
 from ai.tools.definitions import config
 
@@ -47,14 +47,13 @@ def getResults(query:str, user_id: int, chat_id: int):
         final_text = response.text
 
     # Save and return final output
-    now = datetime.now()
     chatProgress(
         id=user_id,
         chat_title = query,
         data={
             "role": "model",
             "parts": [{"text": final_text}],
-            "time_stamp": now.strftime("%d-%m-%Y %H:%M %p")
+            "time_stamp": utc_now_iso()
         }, 
         chat_id=chat_id
     )
@@ -108,14 +107,13 @@ def getResultsStream(query: str, user_id: int, chat_id: int):
     logger.info("Gemini stream completed with %d characters", len(final_text))
 
     # Save final output once the stream is complete
-    now = datetime.now()
     chatProgress(
         id=user_id,
         chat_title = query,
         data={
             "role": "model",
             "parts": [{"text": final_text}],
-            "time_stamp": now.strftime("%d-%m-%Y %H:%M %p")
+            "time_stamp": utc_now_iso()
         },
         chat_id=chat_id
     )

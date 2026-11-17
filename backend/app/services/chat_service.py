@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from db.chat_queries import (
     chatProgress,
     delete_chat_query,
@@ -9,6 +7,7 @@ from db.chat_queries import (
 )
 from LLM.query_processing import getResults, getResultsStream
 from services.exceptions import ChatNotFoundError
+from utils.time_utils import utc_now_iso
 
 
 def create_chat(user_id: int):
@@ -47,30 +46,26 @@ def get_chat_messages(user_id: int, chat_id: int):
 
 
 def process_chat_query(user_id: int, chat_id: int, query: str):
-    now = datetime.now()
-    chatProgress(
-        user_id,
-        chat_id=chat_id,
-        chat_title=query,
-        data={
-            "role": "user",
-            "parts": [{"text": query}],
-            "time_stamp": now.strftime("%d-%m-%Y %H:%M %p"),
-        },
-    )
+    _save_user_message(user_id, chat_id, query)
     return getResults(query, user_id=user_id, chat_id=chat_id)
 
 
 def process_chat_query_stream(user_id: int, chat_id: int, query: str):
-    now = datetime.now()
-    chatProgress(
+    _save_user_message(user_id, chat_id, query)
+    return getResultsStream(query, user_id=user_id, chat_id=chat_id)
+
+
+def _save_user_message(user_id: int, chat_id: int, query: str) -> None:
+    """Save the user's message, rejecting chats the user does not own."""
+    updated_rows = chatProgress(
         user_id,
         chat_id=chat_id,
         chat_title=query,
         data={
             "role": "user",
             "parts": [{"text": query}],
-            "time_stamp": now.strftime("%d-%m-%Y %H:%M %p"),
+            "time_stamp": utc_now_iso(),
         },
     )
-    return getResultsStream(query, user_id=user_id, chat_id=chat_id)
+    if updated_rows == 0:
+        raise ChatNotFoundError(chat_id)

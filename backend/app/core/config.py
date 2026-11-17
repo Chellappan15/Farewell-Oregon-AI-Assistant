@@ -55,7 +55,7 @@ class Settings:
         default_factory=lambda: _env("CHROMA_DB_PATH", str(_BACKEND_DIR / "chroma_db"))
     )
     chroma_collection: str = field(default_factory=lambda: _env("CHROMA_COLLECTION", "days_gone"))
-    retrieval_top_k: int = field(default_factory=lambda: int(_env("RETRIEVAL_TOP_K", "5")))
+    retrieval_top_k: int = field(default_factory=lambda: int(_env("RETRIEVAL_TOP_K", "10")))
     # Chunks with a distance above this are dropped (lower = more similar).
     retrieval_max_distance: float = field(
         default_factory=lambda: float(_env("RETRIEVAL_MAX_DISTANCE", "1.2"))
