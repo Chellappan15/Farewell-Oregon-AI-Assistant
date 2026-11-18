@@ -1,9 +1,13 @@
+import hashlib
 import json
 import logging
 import random
 import time
+from collections import defaultdict
+from pathlib import Path
 
 from datasets import Dataset
+from diskcache import Cache
 from core.config import settings
 from eval.llm_answers import generate_answer
 from LLM.token_estimator import chunk_selection
@@ -12,6 +16,9 @@ from rag.retriever import retrieve_context
 logger = logging.getLogger(__name__)
 
 _SAMPLE_SEED = 42
+_MIN_PER_TYPE = 3
+# Bump when the answer prompt in llm_answers.py changes, so cached answers are not reused.
+_ANSWER_PROMPT_VERSION = "v1"
 
 def load_golden_data() -> list[dict]:
     """Read the golden JSONL file into a list of rows."""
@@ -37,30 +44,82 @@ def load_golden_data() -> list[dict]:
         raise
 
 
+def eval_size() -> int:
+    """Number of questions for the current EVAL_MODE."""
+    return settings.eval_quick_count if settings.eval_mode == "quick" else settings.eval_count
+
+
 def select_rows(rows: list[dict], count: int) -> list[dict]:
-    """Pick a fixed, reproducible sample. count <= 0 means use every row."""
+    """Pick a fixed, reproducible sample, stratified by evaluation_type.
+
+    Each type gets a share proportional to its size, with at least
+    _MIN_PER_TYPE rows, so small types (abstention, multi_field) are always
+    represented. count <= 0 means use every row.
+    """
     if count <= 0 or count >= len(rows):
         return rows
-    return random.Random(_SAMPLE_SEED).sample(rows, count)
+
+    groups: dict[str, list[dict]] = defaultdict(list)
+    for row in rows:
+        groups[row.get("evaluation_type", "unknown")].append(row)
+
+    alloc = {
+        etype: min(len(group), max(_MIN_PER_TYPE, round(count * len(group) / len(rows))))
+        for etype, group in groups.items()
+    }
+    # Fix rounding drift by adjusting the largest type.
+    largest = max(groups, key=lambda etype: len(groups[etype]))
+    alloc[largest] = max(0, min(len(groups[largest]), alloc[largest] + count - sum(alloc.values())))
+
+    rng = random.Random(_SAMPLE_SEED)
+    selected = []
+    for etype in sorted(groups):
+        selected.extend(rng.sample(groups[etype], alloc[etype]))
+    return selected
 
 
-def create_dataset() -> Dataset:
+def _answer_cache() -> Cache | None:
+    if not settings.eval_cache:
+        return None
+    return Cache(str(Path(settings.eval_cache_dir) / "answers"))
+
+
+def _answer_key(question: str, contexts: list[str]) -> str:
+    payload = json.dumps(
+        [settings.gemini_model, _ANSWER_PROMPT_VERSION, question, contexts], ensure_ascii=False
+    )
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def create_dataset() -> tuple[Dataset, list[dict]]:
     """Run retrieval + generation for each golden question.
 
-    Returns a Dataset in the RAGAS format:
-    user_input, retrieved_contexts, response, reference.
+    Returns a Dataset in the RAGAS format
+    (user_input, retrieved_contexts, response, reference) and a parallel
+    list of per-row metadata (id, evaluation_type) in the same order.
     """
     try:
-        golden_rows = select_rows(load_golden_data(), int(settings.eval_count))
+        golden_rows = select_rows(load_golden_data(), eval_size())
+        cache = _answer_cache()
         rows = []
+        meta = []
         failed = 0
+        cache_hits = 0
 
         for item in golden_rows:
             try:
                 chunks = chunk_selection(retrieve_context(item["question"]))
                 contexts = [chunk["text"] for chunk in chunks]
-                answer = generate_answer(item["question"], contexts)
-                time.sleep(4.5)
+                key = _answer_key(item["question"], contexts)
+                answer = cache.get(key) if cache is not None else None
+                if answer is None:
+                    answer = generate_answer(item["question"], contexts)
+                    if cache is not None and answer:
+                        cache.set(key, answer)
+                    if settings.eval_sleep > 0:
+                        time.sleep(settings.eval_sleep)
+                else:
+                    cache_hits += 1
             except Exception:
                 # One bad question should not stop the whole eval run
                 failed += 1
@@ -75,15 +134,23 @@ def create_dataset() -> Dataset:
                     "reference": item["gold_answer"],
                 }
             )
+            meta.append(
+                {
+                    "id": item.get("id"),
+                    "evaluation_type": item.get("evaluation_type"),
+                }
+            )
 
+        if cache is not None:
+            cache.close()
         logger.info(
-            "Created eval dataset: %d rows, %d failed, %d selected",
-            len(rows), failed, len(golden_rows),
+            "Created eval dataset: %d rows, %d failed, %d selected, %d answers from cache",
+            len(rows), failed, len(golden_rows), cache_hits,
         )
         if not rows:
             raise RuntimeError("No eval rows were created; check the logs above.")
 
-        return Dataset.from_list(rows)
+        return Dataset.from_list(rows), meta
 
     except Exception:
         logger.exception("Failed to create the evaluation dataset")

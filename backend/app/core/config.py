@@ -75,7 +75,19 @@ class Settings:
 
     # Eval count
     eval_count: int = field(
-        default_factory=lambda: _env("EVAL_COUNT", "50")
+        default_factory=lambda: int(_env("EVAL_COUNT", "50"))
+    )
+    # "full" uses EVAL_COUNT questions; "quick" uses EVAL_QUICK_COUNT for fast iteration.
+    eval_mode: str = field(default_factory=lambda: _env("EVAL_MODE", "full").strip().lower())
+    eval_quick_count: int = field(default_factory=lambda: int(_env("EVAL_QUICK_COUNT", "20")))
+    # Parallel judge calls. Keep 1 on the free tier; raise it once billing is enabled.
+    eval_workers: int = field(default_factory=lambda: int(_env("EVAL_WORKERS", "1")))
+    # Pause after each fresh answer-generation call (seconds). 0 once billing is enabled.
+    eval_sleep: float = field(default_factory=lambda: float(_env("EVAL_SLEEP", "4.5")))
+    # Cache generated answers and judge calls on disk so re-runs skip repeated API calls.
+    eval_cache: bool = field(default_factory=lambda: _env_bool("EVAL_CACHE", True))
+    eval_cache_dir: str = field(
+        default_factory=lambda: _env("EVAL_CACHE_DIR", str(_BACKEND_DIR / "eval_results" / ".cache"))
     )
 
     # API

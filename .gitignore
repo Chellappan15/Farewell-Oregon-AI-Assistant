@@ -44,3 +44,6 @@ node_modules
 # Scratch files (not part of the app)
 summa.txt
 testing.py
+
+# Eval cache (answers + judge calls)
+backend/eval_results/.cache/
