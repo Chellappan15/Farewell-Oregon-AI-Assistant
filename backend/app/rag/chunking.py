@@ -34,10 +34,9 @@ def chunking_function() -> list[Document]:
         markdown = markdown_path.read_text(encoding="utf-8")
 
         headers = [
-            ("#", "title"),
-            ("##", "section"),
-            ("###", "subsection"),
-            ("####", "topic"),
+            ("#", "section"),
+            ("##", "subsection"),
+            ("###", "topic"),
         ]
         header_splitter = MarkdownHeaderTextSplitter(
             headers_to_split_on=headers,

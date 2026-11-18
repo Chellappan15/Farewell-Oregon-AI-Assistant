@@ -9,6 +9,9 @@ from routers.chat_routes import chat_router
 from routers.user_routes import user_router
 from services.exceptions import ChatNotFoundError
 
+# Eval
+from eval.evaluator import evaluator
+
 
 app = FastAPI()
 
@@ -61,3 +64,7 @@ def home():
         "message": "Hello world",
         "data": "Server is running",
     }
+
+@app.get("/evaluate")
+def evaluate():
+    return evaluator()

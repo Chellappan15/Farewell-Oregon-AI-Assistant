@@ -1,9 +1,3 @@
-"""Central application settings.
-
-All configuration is read from environment variables (loaded from backend/.env
-once, here). Import `settings` instead of calling os.getenv() in modules.
-"""
-
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -71,7 +65,17 @@ class Settings:
         default_factory=lambda: float(_env("RETRIEVAL_MAX_DISTANCE", "1.2"))
     )
     knowledge_base_path: str = field(
-        default_factory=lambda: _env("KNOWLEDGE_BASE_PATH", str(_BACKEND_DIR.parent / "DAYS GONE.md"))
+        default_factory=lambda: _env("KNOWLEDGE_BASE_PATH", str(_BACKEND_DIR / "Days Gone Data.md"))
+    )
+
+    # Golden data json path
+    golden_data: str = field(
+        default_factory=lambda: _env("GOLDEN_DATA", str(_BACKEND_DIR / "Days Gone Golden Eval.jsonl"))
+    )
+
+    # Eval count
+    eval_count: int = field(
+        default_factory=lambda: _env("EVAL_COUNT", "50")
     )
 
     # API
