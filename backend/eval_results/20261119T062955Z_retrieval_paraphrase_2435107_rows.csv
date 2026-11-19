@@ -1,0 +1,115 @@
+mode,id,evaluation_type,question,hit,reciprocal_rank,evidence_recall,latency_ms,first_relevant_rank,chunks_returned
+dense,DG-P-0096,fact_retrieval,What does nitrous actually do for Deacon's bike?,1.0,0.5,1.0,17.500000016298145,2,4
+dense,DG-P-0093,fact_retrieval,"Is the bigger gas tank upgrade worth it, what does it give me?",1.0,0.3333333333333333,1.0,16.450299997814,3,3
+dense,DG-P-0183,multi_field,What kind of gun is the Eliminator and what makes it different?,1.0,0.5,1.0,22.642800002358854,2,3
+dense,DG-P-0103,fact_retrieval,What do I get from Hard Hitter?,1.0,1.0,1.0,25.26289998786524,1,1
+dense,DG-P-0104,fact_retrieval,What's the point of the spiked bat?,1.0,1.0,1.0,16.55120000941679,1,1
+dense,DG-P-0117,fact_retrieval,Where can I buy the RPD machine gun and what do I need first?,0.0,0.0,0.0,20.617000001948327,,3
+dense,DG-P-0193,multi_field,"What are attractors used for, and when should I throw one?",1.0,1.0,1.0,23.088799964170903,1,3
+dense,DG-P-0111,fact_retrieval,Where do I get my hands on the SAP9?,1.0,1.0,1.0,17.609400034416467,1,3
+dense,DG-P-0118,fact_retrieval,Why should I keep the boot knife on me?,0.0,0.0,0.0,22.50269998330623,,0
+dense,DG-P-0122,fact_retrieval,What exactly is a Crier?,0.0,0.0,0.0,16.829100030008703,,2
+dense,DG-P-0130,fact_retrieval,What are Newts and where do they usually hide?,1.0,1.0,1.0,17.91090000187978,1,1
+dense,DG-P-0134,fact_retrieval,Who's the actor behind Copeland?,1.0,1.0,1.0,15.058699995279312,1,1
+dense,DG-P-0131,fact_retrieval,Which actor plays Iron Mike?,1.0,1.0,1.0,21.379899990279227,1,2
+dense,DG-P-0132,fact_retrieval,"Who plays O'Brian, the NERO guy?",1.0,1.0,1.0,14.946999959647655,1,2
+dense,DG-P-0171,fact_retrieval,How do I unlock Kitchen Courier?,1.0,1.0,1.0,17.890100018121302,1,1
+dense,DG-P-0157,fact_retrieval,How do I get the Ambush Camp Hunter achievement?,1.0,1.0,1.0,31.55539999715984,1,5
+dense,DG-P-0146,fact_retrieval,What do I need to do for This Is a Knife?,1.0,1.0,1.0,15.859600040130317,1,1
+dense,DG-P-0151,fact_retrieval,How many people do I need to save for Surviving Isn't Living?,1.0,1.0,1.0,19.243900023866445,1,1
+dense,DG-P-0173,fact_retrieval,What unlocks The Ends and the Means?,1.0,1.0,1.0,19.30069999070838,1,5
+dense,DG-P-0161,fact_retrieval,When do you get Don't Stop Me Now?,1.0,1.0,1.0,21.912399970460683,1,2
+dense,DG-P-0174,fact_retrieval,How many sneaky kills for Ghost of Farewell?,1.0,1.0,1.0,23.822500021196902,1,2
+dense,DG-P-0013,fact_retrieval,"I'm at the Jefferson Rail Tunnel ambush camp, where's the bunker hidden?",1.0,1.0,1.0,17.341400031000376,1,5
+dense,DG-P-0022,fact_retrieval,Where's the bunker at the Redwood RV camp?,1.0,1.0,1.0,16.12600003136322,1,5
+dense,DG-P-0014,fact_retrieval,"Can't find the bunker at Belknap Caves, where do I look?",1.0,1.0,1.0,22.436500003095716,1,5
+dense,DG-P-0034,fact_retrieval,How do I get the Horse Lake checkpoint running?,1.0,0.25,1.0,18.55700003216043,4,5
+dense,DG-P-0043,fact_retrieval,Anything I should watch out for when powering up the Iron Butte Pass checkpoint?,1.0,0.25,1.0,20.728200033772737,4,5
+dense,DG-P-0044,fact_retrieval,What do I need to do to get the Rogue Tunnel checkpoint working?,1.0,1.0,1.0,14.893399958964437,1,4
+dense,DG-P-0182,multi_field,How big is the Mt. Bailey horde and where does it sleep during the day?,1.0,1.0,1.0,21.480700001120567,1,5
+dense,DG-P-0049,fact_retrieval,Where does the Twin Craters horde hang out in daylight?,1.0,1.0,1.0,18.719200044870377,1,5
+dense,DG-P-0180,multi_field,"How many freakers are in the Lava Arch horde, and where do they rest by day?",1.0,1.0,1.0,19.291100034024566,1,5
+dense,DG-P-0194,multi_field,Bear Creek Hot Springs horde: how many and where do I find them in the daytime?,1.0,1.0,1.0,20.46239998890087,1,5
+dense,DG-P-0071,fact_retrieval,Where's the Cascade Lakes Rail Line horde during daylight hours?,1.0,1.0,1.0,21.456400048919022,1,5
+dense,DG-P-0191,multi_field,How large is the Rimview Ranch horde and where's its daytime nest?,1.0,1.0,1.0,17.649399989750236,1,5
+dense,DG-P-0060,fact_retrieval,Where do I find the free-roam Chemult Station horde when the sun's up?,1.0,1.0,1.0,20.628899976145476,1,5
+dense,DG-P-0048,fact_retrieval,Where can I track down the White King Mine horde during the daytime?,1.0,1.0,1.0,18.594700028188527,1,5
+dense,DG-P-0054,fact_retrieval,Where does the Mt. Scott Ski Resort horde go during the day?,1.0,1.0,1.0,18.88009998947382,1,5
+dense,DG-P-0085,fact_retrieval,How does the Herbology collectible work?,1.0,1.0,1.0,16.229900007601827,1,1
+dense,DG-P-0087,fact_retrieval,Where do I find the R.I.P. sermons?,1.0,1.0,1.0,20.045300014317036,1,1
+text,DG-P-0096,fact_retrieval,What does nitrous actually do for Deacon's bike?,1.0,1.0,1.0,0.9764999849721789,1,5
+text,DG-P-0093,fact_retrieval,"Is the bigger gas tank upgrade worth it, what does it give me?",0.0,0.0,0.0,1.3066999963484704,,5
+text,DG-P-0183,multi_field,What kind of gun is the Eliminator and what makes it different?,0.0,0.0,0.0,1.717100036330521,,5
+text,DG-P-0103,fact_retrieval,What do I get from Hard Hitter?,1.0,1.0,1.0,1.1959999683313072,1,5
+text,DG-P-0104,fact_retrieval,What's the point of the spiked bat?,1.0,1.0,1.0,1.4879999798722565,1,5
+text,DG-P-0117,fact_retrieval,Where can I buy the RPD machine gun and what do I need first?,0.0,0.0,0.0,3.0091999797150493,,5
+text,DG-P-0193,multi_field,"What are attractors used for, and when should I throw one?",0.0,0.0,0.0,3.0663000070489943,,5
+text,DG-P-0111,fact_retrieval,Where do I get my hands on the SAP9?,1.0,0.5,1.0,2.317100006621331,2,5
+text,DG-P-0118,fact_retrieval,Why should I keep the boot knife on me?,1.0,0.5,1.0,1.6212000045925379,2,5
+text,DG-P-0122,fact_retrieval,What exactly is a Crier?,1.0,0.25,1.0,0.9312999900430441,4,5
+text,DG-P-0130,fact_retrieval,What are Newts and where do they usually hide?,0.0,0.0,0.0,1.3970999862067401,,5
+text,DG-P-0134,fact_retrieval,Who's the actor behind Copeland?,1.0,1.0,1.0,1.1567000183276832,1,5
+text,DG-P-0131,fact_retrieval,Which actor plays Iron Mike?,1.0,1.0,1.0,0.7522999658249319,1,5
+text,DG-P-0132,fact_retrieval,"Who plays O'Brian, the NERO guy?",1.0,1.0,1.0,1.6615000204183161,1,5
+text,DG-P-0171,fact_retrieval,How do I unlock Kitchen Courier?,1.0,1.0,1.0,1.8238999764434993,1,5
+text,DG-P-0157,fact_retrieval,How do I get the Ambush Camp Hunter achievement?,1.0,1.0,1.0,1.3715000241063535,1,5
+text,DG-P-0146,fact_retrieval,What do I need to do for This Is a Knife?,1.0,1.0,1.0,1.6736999968998134,1,5
+text,DG-P-0151,fact_retrieval,How many people do I need to save for Surviving Isn't Living?,1.0,1.0,1.0,1.2992999982088804,1,5
+text,DG-P-0173,fact_retrieval,What unlocks The Ends and the Means?,1.0,1.0,1.0,0.9191999561153352,1,5
+text,DG-P-0161,fact_retrieval,When do you get Don't Stop Me Now?,1.0,1.0,1.0,1.346500008367002,1,5
+text,DG-P-0174,fact_retrieval,How many sneaky kills for Ghost of Farewell?,1.0,1.0,1.0,0.9398999973200262,1,5
+text,DG-P-0013,fact_retrieval,"I'm at the Jefferson Rail Tunnel ambush camp, where's the bunker hidden?",1.0,1.0,1.0,1.869100029580295,1,5
+text,DG-P-0022,fact_retrieval,Where's the bunker at the Redwood RV camp?,1.0,1.0,1.0,1.3513999874703586,1,5
+text,DG-P-0014,fact_retrieval,"Can't find the bunker at Belknap Caves, where do I look?",1.0,1.0,1.0,2.0688999793492258,1,5
+text,DG-P-0034,fact_retrieval,How do I get the Horse Lake checkpoint running?,1.0,0.5,1.0,2.5126999826170504,2,5
+text,DG-P-0043,fact_retrieval,Anything I should watch out for when powering up the Iron Butte Pass checkpoint?,1.0,1.0,1.0,2.6331000262871385,1,5
+text,DG-P-0044,fact_retrieval,What do I need to do to get the Rogue Tunnel checkpoint working?,1.0,1.0,1.0,1.8442999571561813,1,5
+text,DG-P-0182,multi_field,How big is the Mt. Bailey horde and where does it sleep during the day?,1.0,1.0,1.0,1.9912999705411494,1,5
+text,DG-P-0049,fact_retrieval,Where does the Twin Craters horde hang out in daylight?,1.0,1.0,1.0,1.498800003901124,1,5
+text,DG-P-0180,multi_field,"How many freakers are in the Lava Arch horde, and where do they rest by day?",1.0,0.5,1.0,2.154699992388487,2,5
+text,DG-P-0194,multi_field,Bear Creek Hot Springs horde: how many and where do I find them in the daytime?,1.0,1.0,1.0,3.2445999677293003,1,5
+text,DG-P-0071,fact_retrieval,Where's the Cascade Lakes Rail Line horde during daylight hours?,1.0,1.0,1.0,1.2910999939776957,1,5
+text,DG-P-0191,multi_field,How large is the Rimview Ranch horde and where's its daytime nest?,1.0,1.0,1.0,1.8368000164628029,1,5
+text,DG-P-0060,fact_retrieval,Where do I find the free-roam Chemult Station horde when the sun's up?,1.0,0.5,1.0,1.3883000356145203,2,5
+text,DG-P-0048,fact_retrieval,Where can I track down the White King Mine horde during the daytime?,1.0,1.0,1.0,1.7355000018142164,1,5
+text,DG-P-0054,fact_retrieval,Where does the Mt. Scott Ski Resort horde go during the day?,1.0,1.0,1.0,1.687500043772161,1,5
+text,DG-P-0085,fact_retrieval,How does the Herbology collectible work?,1.0,1.0,1.0,0.977099989540875,1,5
+text,DG-P-0087,fact_retrieval,Where do I find the R.I.P. sermons?,1.0,1.0,1.0,1.3165000127628446,1,5
+hybrid,DG-P-0096,fact_retrieval,What does nitrous actually do for Deacon's bike?,1.0,0.25,1.0,96.834099967964,4,5
+hybrid,DG-P-0093,fact_retrieval,"Is the bigger gas tank upgrade worth it, what does it give me?",1.0,0.3333333333333333,1.0,144.04119999380782,3,5
+hybrid,DG-P-0183,multi_field,What kind of gun is the Eliminator and what makes it different?,1.0,1.0,1.0,136.7327999905683,1,5
+hybrid,DG-P-0103,fact_retrieval,What do I get from Hard Hitter?,1.0,1.0,1.0,87.87669998127967,1,5
+hybrid,DG-P-0104,fact_retrieval,What's the point of the spiked bat?,1.0,1.0,1.0,94.4690999458544,1,5
+hybrid,DG-P-0117,fact_retrieval,Where can I buy the RPD machine gun and what do I need first?,0.0,0.0,0.0,133.16719996510074,,5
+hybrid,DG-P-0193,multi_field,"What are attractors used for, and when should I throw one?",1.0,0.3333333333333333,1.0,158.87250000378117,3,5
+hybrid,DG-P-0111,fact_retrieval,Where do I get my hands on the SAP9?,1.0,1.0,1.0,108.2687999587506,1,5
+hybrid,DG-P-0118,fact_retrieval,Why should I keep the boot knife on me?,1.0,1.0,1.0,90.64710000529885,1,5
+hybrid,DG-P-0122,fact_retrieval,What exactly is a Crier?,1.0,0.3333333333333333,1.0,105.83199997199699,3,5
+hybrid,DG-P-0130,fact_retrieval,What are Newts and where do they usually hide?,1.0,1.0,1.0,136.17899996461347,1,5
+hybrid,DG-P-0134,fact_retrieval,Who's the actor behind Copeland?,1.0,1.0,1.0,109.80939998989925,1,5
+hybrid,DG-P-0131,fact_retrieval,Which actor plays Iron Mike?,1.0,1.0,1.0,111.72900005476549,1,5
+hybrid,DG-P-0132,fact_retrieval,"Who plays O'Brian, the NERO guy?",1.0,1.0,1.0,89.83419998548925,1,5
+hybrid,DG-P-0171,fact_retrieval,How do I unlock Kitchen Courier?,1.0,1.0,1.0,88.99540000129491,1,5
+hybrid,DG-P-0157,fact_retrieval,How do I get the Ambush Camp Hunter achievement?,1.0,0.3333333333333333,1.0,121.74039997626096,3,5
+hybrid,DG-P-0146,fact_retrieval,What do I need to do for This Is a Knife?,1.0,1.0,1.0,105.14669999247417,1,5
+hybrid,DG-P-0151,fact_retrieval,How many people do I need to save for Surviving Isn't Living?,1.0,1.0,1.0,85.3114000055939,1,5
+hybrid,DG-P-0173,fact_retrieval,What unlocks The Ends and the Means?,1.0,1.0,1.0,116.76029994850978,1,5
+hybrid,DG-P-0161,fact_retrieval,When do you get Don't Stop Me Now?,1.0,1.0,1.0,79.49879998341203,1,5
+hybrid,DG-P-0174,fact_retrieval,How many sneaky kills for Ghost of Farewell?,1.0,1.0,1.0,91.17840003455058,1,5
+hybrid,DG-P-0013,fact_retrieval,"I'm at the Jefferson Rail Tunnel ambush camp, where's the bunker hidden?",1.0,1.0,1.0,130.63939998392016,1,5
+hybrid,DG-P-0022,fact_retrieval,Where's the bunker at the Redwood RV camp?,1.0,1.0,1.0,131.96420000167564,1,5
+hybrid,DG-P-0014,fact_retrieval,"Can't find the bunker at Belknap Caves, where do I look?",1.0,1.0,1.0,173.2604000135325,1,5
+hybrid,DG-P-0034,fact_retrieval,How do I get the Horse Lake checkpoint running?,1.0,1.0,1.0,117.59210005402565,1,5
+hybrid,DG-P-0043,fact_retrieval,Anything I should watch out for when powering up the Iron Butte Pass checkpoint?,1.0,1.0,1.0,144.96609999332577,1,5
+hybrid,DG-P-0044,fact_retrieval,What do I need to do to get the Rogue Tunnel checkpoint working?,1.0,1.0,1.0,109.76140003185719,1,5
+hybrid,DG-P-0182,multi_field,How big is the Mt. Bailey horde and where does it sleep during the day?,1.0,1.0,1.0,157.02769998461008,1,5
+hybrid,DG-P-0049,fact_retrieval,Where does the Twin Craters horde hang out in daylight?,1.0,1.0,1.0,216.23690001433715,1,5
+hybrid,DG-P-0180,multi_field,"How many freakers are in the Lava Arch horde, and where do they rest by day?",1.0,0.5,1.0,148.43200001632795,2,5
+hybrid,DG-P-0194,multi_field,Bear Creek Hot Springs horde: how many and where do I find them in the daytime?,1.0,1.0,1.0,158.721300016623,1,5
+hybrid,DG-P-0071,fact_retrieval,Where's the Cascade Lakes Rail Line horde during daylight hours?,1.0,1.0,1.0,157.65399998053908,1,5
+hybrid,DG-P-0191,multi_field,How large is the Rimview Ranch horde and where's its daytime nest?,1.0,1.0,1.0,195.88120002299547,1,5
+hybrid,DG-P-0060,fact_retrieval,Where do I find the free-roam Chemult Station horde when the sun's up?,1.0,1.0,1.0,149.60529998643324,1,5
+hybrid,DG-P-0048,fact_retrieval,Where can I track down the White King Mine horde during the daytime?,1.0,1.0,1.0,147.89480000035837,1,5
+hybrid,DG-P-0054,fact_retrieval,Where does the Mt. Scott Ski Resort horde go during the day?,1.0,1.0,1.0,156.11209999769926,1,5
+hybrid,DG-P-0085,fact_retrieval,How does the Herbology collectible work?,1.0,1.0,1.0,97.20580000430346,1,5
+hybrid,DG-P-0087,fact_retrieval,Where do I find the R.I.P. sermons?,1.0,1.0,1.0,98.34639995824546,1,5

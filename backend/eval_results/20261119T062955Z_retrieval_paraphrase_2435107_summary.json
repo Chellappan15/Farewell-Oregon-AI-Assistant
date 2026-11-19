@@ -1,0 +1,83 @@
+{
+  "timestamp_utc": "20261119T062955Z",
+  "git_commit": "2435107",
+  "golden_file": "Days Gone Paraphrase Eval.jsonl",
+  "retrieval_top_k": 5,
+  "retrieval_max_distance": 1.2,
+  "rrf_k": 60,
+  "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+  "skipped_without_evidence": 0,
+  "overall": {
+    "dense": {
+      "questions": 38,
+      "hit_rate": 0.9211,
+      "mrr": 0.8377,
+      "evidence_recall": 0.9211,
+      "avg_latency_ms": 19.5
+    },
+    "text": {
+      "questions": 38,
+      "hit_rate": 0.8684,
+      "mrr": 0.7829,
+      "evidence_recall": 0.8684,
+      "avg_latency_ms": 1.7
+    },
+    "hybrid": {
+      "questions": 38,
+      "hit_rate": 0.9737,
+      "mrr": 0.8706,
+      "evidence_recall": 0.9737,
+      "avg_latency_ms": 125.9
+    }
+  },
+  "by_evaluation_type": {
+    "dense": {
+      "fact_retrieval": {
+        "questions": 32,
+        "hit_rate": 0.9062,
+        "mrr": 0.8229,
+        "evidence_recall": 0.9062,
+        "avg_latency_ms": 19.3
+      },
+      "multi_field": {
+        "questions": 6,
+        "hit_rate": 1.0,
+        "mrr": 0.9167,
+        "evidence_recall": 1.0,
+        "avg_latency_ms": 20.8
+      }
+    },
+    "text": {
+      "fact_retrieval": {
+        "questions": 32,
+        "hit_rate": 0.9062,
+        "mrr": 0.8203,
+        "evidence_recall": 0.9062,
+        "avg_latency_ms": 1.5
+      },
+      "multi_field": {
+        "questions": 6,
+        "hit_rate": 0.6667,
+        "mrr": 0.5833,
+        "evidence_recall": 0.6667,
+        "avg_latency_ms": 2.3
+      }
+    },
+    "hybrid": {
+      "fact_retrieval": {
+        "questions": 32,
+        "hit_rate": 0.9688,
+        "mrr": 0.8828,
+        "evidence_recall": 0.9688,
+        "avg_latency_ms": 119.6
+      },
+      "multi_field": {
+        "questions": 6,
+        "hit_rate": 1.0,
+        "mrr": 0.8056,
+        "evidence_recall": 1.0,
+        "avg_latency_ms": 159.3
+      }
+    }
+  }
+}

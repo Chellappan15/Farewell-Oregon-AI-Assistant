@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 _SAMPLE_SEED = 42
 _MIN_PER_TYPE = 3
 # Bump when the answer prompt in llm_answers.py changes, so cached answers are not reused.
-_ANSWER_PROMPT_VERSION = "v1"
+_ANSWER_PROMPT_VERSION = "v2"  # v2: production template days_gone_prompt.j2
 
 def load_golden_data() -> list[dict]:
     """Read the golden JSONL file into a list of rows."""
@@ -119,7 +119,7 @@ def create_dataset() -> tuple[Dataset, list[dict]]:
                 key = _answer_key(item["question"], contexts)
                 answer = cache.get(key) if cache is not None else None
                 if answer is None:
-                    answer = generate_answer(item["question"], contexts)
+                    answer = generate_answer(item["question"], chunks)
                     if cache is not None and answer:
                         cache.set(key, answer)
                     if settings.eval_sleep > 0:
