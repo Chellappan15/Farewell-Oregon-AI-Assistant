@@ -11,13 +11,12 @@ from routers.chat_routes import chat_router
 from routers.user_routes import user_router
 from services.exceptions import ChatNotFoundError
 from rag.context_builder import ensure_bm25_index
-
-# Eval
-from eval.evaluator import evaluator
+from rag.indexer import ensure_vector_index
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    ensure_vector_index()
     ensure_bm25_index()
     yield
 
@@ -76,4 +75,15 @@ def home():
 
 @app.get("/evaluate")
 def evaluate():
+    # Imported here so the app runs without the eval packages (requirements-eval.txt)
+    try:
+        from eval.evaluator import evaluator
+    except ImportError:
+        return JSONResponse(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            content={
+                "success": False,
+                "message": "Eval packages are not installed. Run: pip install -r requirements-eval.txt",
+            },
+        )
     return evaluator()

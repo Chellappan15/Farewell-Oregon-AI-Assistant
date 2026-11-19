@@ -1,52 +1,89 @@
 import logging
-
-from core.config import settings
+from typing import Any
 
 from google.genai import types
 
+from core.config import settings
 from ai.tools.compare_weapons import compare_weapons
 from ai.tools.zombie_types import zombie_details
 
 logger = logging.getLogger(__name__)
-_MAX_TOOL_CALLS = 5
 
-def handlers(function_call, history, response, config, prompt, client):
-    for _ in range(_MAX_TOOL_CALLS):
-        if function_call.name == "compare_weapons":
-            result = compare_weapons(
-                function_call.args.get("first"),
-                function_call.args.get("second"),
-            )
-        elif function_call.name == "zombie_details":
-            result = zombie_details(function_call.args.get("zombie_name"))
+# Max model round-trips that request tools before we give up.
+_MAX_TOOL_ROUNDS = 5
+
+
+def _dispatch(call) -> dict[str, Any]:
+    """Run one tool call. Errors go back to the model instead of crashing the request."""
+    args = call.args or {}
+    try:
+        if call.name == "compare_weapons":
+            result = compare_weapons(args.get("first"), args.get("second"))
+        elif call.name == "zombie_details":
+            result = zombie_details(args.get("zombie_name"))
         else:
-            raise ValueError(f"Unsupported Gemini tool: {function_call.name}")
+            logger.warning("Gemini requested unknown tool: %s", call.name)
+            return {"error": f"Unknown tool: {call.name}"}
+    except Exception:
+        logger.exception("Tool %s failed with args %s", call.name, args)
+        return {"error": f"The {call.name} tool failed. Answer without it if possible."}
 
-        function_response = types.Part.from_function_response(
-            name=function_call.name,
-            response={"content": result if result is not None else ""},
-        )
-        content = [
-            *history,
-            types.Content(
-                role="user",
-                parts=[types.Part.from_text(text=prompt)],
-            ),
-            response.candidates[0].content,
+    return {"content": result if result is not None else ""}
+
+
+def _function_calls(content: types.Content | None) -> list:
+    return [part.function_call for part in (content.parts or []) if part.function_call] if content else []
+
+
+def _text(content: types.Content | None) -> str:
+    if not content:
+        return ""
+    return "".join(
+        part.text for part in (content.parts or []) if part.text and not getattr(part, "thought", False)
+    )
+
+
+def run_tools(
+    model_content: types.Content,
+    history: list,
+    prompt: str,
+    client,
+    config: types.GenerateContentConfig,
+) -> str:
+    """Resolve tool calls until the model returns a plain answer.
+
+    model_content is the model turn that requested the tools (all of its parts,
+    kept as-is so thought signatures are preserved). Every round's calls and
+    results are appended to one running conversation, so later rounds still see
+    earlier tool results, and parallel calls in one turn are all answered together.
+    """
+    contents = [
+        *history,
+        types.Content(role="user", parts=[types.Part.from_text(text=prompt)]),
+    ]
+
+    for round_number in range(1, _MAX_TOOL_ROUNDS + 1):
+        calls = _function_calls(model_content)
+        if not calls:
+            return _text(model_content)
+
+        logger.info("Tool round %d: %s", round_number, [call.name for call in calls])
+        contents.append(model_content)
+        contents.append(
             types.Content(
                 role="tool",
-                parts=[function_response],
-            ),
-        ]
+                parts=[
+                    types.Part.from_function_response(name=call.name, response=_dispatch(call))
+                    for call in calls
+                ],
+            )
+        )
+
         response = client.models.generate_content(
             model=settings.gemini_model,
-            contents=content,
+            contents=contents,
             config=config,
         )
-        parts = response.candidates[0].content.parts
-        logger.info("Gemini tool response received with %d content parts", len(parts))
-        function_call = getattr(parts[0], "function_call", None)
-        if not function_call:
-            return response.text
+        model_content = response.candidates[0].content if response.candidates else None
 
     raise RuntimeError("Gemini exceeded the maximum tool-call limit.")

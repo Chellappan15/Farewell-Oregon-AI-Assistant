@@ -49,6 +49,14 @@ def index_documents() -> int:
     return len(ids)
 
 
+def ensure_vector_index() -> None:
+    """Index the knowledge base if the Chroma collection is empty (e.g. a fresh container)."""
+    if get_collection().count() > 0:
+        return
+    logger.warning("Chroma collection is empty; indexing the knowledge base now")
+    index_documents()
+
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     index_documents()

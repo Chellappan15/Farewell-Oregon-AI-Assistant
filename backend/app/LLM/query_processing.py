@@ -4,13 +4,15 @@ from core.config import settings
 from ai.gemini_client import get_gemini_client
 from db.chat_queries import chatProgress, get_chat_history
 from rag.context_builder import RetrievalMode, build_context
-from ai.tools.handlers import handlers
+from ai.tools.handlers import run_tools
 from utils.time_utils import utc_now_iso
 from LLM.prompt_renderer import render_gemini_prompt
 from ai.tools.definitions import config
 from LLM.llm_errors import handle_gemini_exception
 from LLM.token_estimator import estimator, chunk_selection, history_selection
 import json
+
+from google.genai import types
 
 logger = logging.getLogger(__name__)
 
@@ -41,21 +43,16 @@ def getResults(query:str, user_id: int, chat_id: int, retrieval_mode: RetrievalM
             config=config
         )
 
-        part = response.candidates[0].content.parts[0]
-        function_call = getattr(part, "function_call", None)
-        logger.info("Gemini response received with %d content parts", len(response.candidates[0].content.parts))
-
-        if function_call:
-            final_text += handlers(
-                function_call,
+        if response.function_calls:
+            final_text += run_tools(
+                response.candidates[0].content,
                 modified_history,
-                response,
-                config,
                 prompt,
                 get_gemini_client(),
+                config,
             )
         else:
-            final_text += response.text
+            final_text += response.text or ""
 
         return ({
             "data": final_text,
@@ -106,25 +103,36 @@ def getResultsStream(query: str, user_id: int, chat_id: int, retrieval_mode: Ret
             config=config
         )
 
-        for chunk in stream:
-            function_calls = chunk.function_calls
-            if function_calls:
-                # Tool calls are resolved by the existing handler, which returns the full text
-                tool_text = handlers(
-                    function_calls[0],
-                    modified_history,
-                    chunk,
-                    config,
-                    prompt,
-                    get_gemini_client(),
-                )
-                final_text += tool_text
-                yield tool_text
-                break
+        # Collect every part of the model's turn: a tool request can be split across
+        # chunks, and several tools can be requested at once.
+        turn_parts = []
+        wants_tools = False
 
-            if chunk.text:
+        for chunk in stream:
+            content = chunk.candidates[0].content if chunk.candidates else None
+            if content and content.parts:
+                turn_parts.extend(content.parts)
+
+            if chunk.function_calls:
+                wants_tools = True
+
+            # Stream text live until the model asks for a tool
+            if not wants_tools and chunk.text:
                 final_text += chunk.text
                 yield chunk.text
+
+        if wants_tools:
+            # Tool rounds run non-streamed; the final answer is sent in one piece
+            tool_text = run_tools(
+                types.Content(role="model", parts=turn_parts),
+                modified_history,
+                prompt,
+                get_gemini_client(),
+                config,
+            )
+            if tool_text:
+                final_text += tool_text
+                yield tool_text
 
         logger.info("Gemini stream completed with %d characters", len(final_text))
 
