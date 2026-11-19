@@ -105,6 +105,9 @@ class Settings:
         default=3000
     )
 
+    # Reciprocal score
+    rrf_k: int = 60
+
 
 settings = Settings()
 

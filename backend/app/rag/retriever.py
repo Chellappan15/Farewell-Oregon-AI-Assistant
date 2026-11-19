@@ -19,7 +19,7 @@ def _source_label(metadata: dict[str, Any]) -> str:
     return " > ".join(parts) if parts else "Days Gone guide"
 
 
-def retrieve_context(query: str, limit: int | None = None) -> list[dict[str, Any]]:
+def retrieve_context(query: str, limit: int | None = None, is_hybrid: bool = False) -> list[dict[str, Any]]:
     """Return the most relevant chunks with their source and distance.
 
     Chunks further away than RETRIEVAL_MAX_DISTANCE are dropped, so weak
@@ -32,23 +32,40 @@ def retrieve_context(query: str, limit: int | None = None) -> list[dict[str, Any
         include=["documents", "metadatas", "distances"],
     )
 
+    if is_hybrid:
+        ids = (results.get("ids") or [[]])[0]
     documents = (results.get("documents") or [[]])[0]
     metadatas = (results.get("metadatas") or [[]])[0]
     distances = (results.get("distances") or [[]])[0]
 
     chunks = []
-    for text, metadata, distance in zip(documents, metadatas, distances):
-        if distance > settings.retrieval_max_distance:
-            continue
-        metadata = metadata or {}
-        chunks.append(
-            {
-                "text": text,
-                "source": _source_label(metadata),
-                "metadata": metadata,
-                "distance": round(float(distance), 4),
-            }
-        )
+    if is_hybrid:
+        for text, metadata, distance, id in zip(documents, metadatas, distances, ids):
+            if distance > settings.retrieval_max_distance:
+                continue
+            metadata = metadata or {}
+            chunks.append(
+                {
+                    "text": text,
+                    "id": id,
+                    "source": _source_label(metadata),
+                    "metadata": metadata,
+                    "distance": round(float(distance), 4),
+                }
+            )
+    else:
+        for text, metadata, distance in zip(documents, metadatas, distances):
+            if distance > settings.retrieval_max_distance:
+                continue
+            metadata = metadata or {}
+            chunks.append(
+                {
+                    "text": text,
+                    "source": _source_label(metadata),
+                    "metadata": metadata,
+                    "distance": round(float(distance), 4),
+                }
+            )
 
     logger.info(
         "Retrieved %d of %d chunks within distance %.2f",
