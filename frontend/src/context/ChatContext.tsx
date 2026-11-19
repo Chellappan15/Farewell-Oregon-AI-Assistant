@@ -7,6 +7,7 @@ import type {
   ChatMessage,
   ChatContextType,
   ErrorInterface,
+  RetrievalMode,
 } from "../types/chat";
 import serverStatus from "../services/serverDetails";
 import { useAuth } from "./AuthContext";
@@ -31,6 +32,17 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   const [isQueryProcessing, setIsQueryProcessing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [serverStats, setServerStats] = useState<boolean>(false);
+
+  // Retrieval mode chosen in the input box (remembered across reloads)
+  const [retrievalMode, setRetrievalModeState] = useState<RetrievalMode>(() => {
+    const saved = localStorage.getItem("dg_retrieval_mode");
+    return saved === "dense" || saved === "text" || saved === "hybrid" ? saved : "hybrid";
+  });
+
+  const setRetrievalMode = (mode: RetrievalMode) => {
+    setRetrievalModeState(mode);
+    localStorage.setItem("dg_retrieval_mode", mode);
+  };
 
   // Server status
   useEffect(() => {
@@ -195,7 +207,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
           const last = prev[prev.length - 1];
           return [...prev.slice(0, -1), { ...last, content: last.content + chunk }];
         });
-      });
+      }, retrievalMode);
 
       // If chat had default title "New chat", update title with query excerpt
       setChatList((prev) =>
@@ -252,6 +264,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     fetchChatList: handleFetchChatList,
     fetchChatMessages: handleFetchChatMessages,
     sendQuery: handleSendQuery,
+    retrievalMode,
+    setRetrievalMode,
     // clearActiveChat: handleClearActiveChat,
   };
 

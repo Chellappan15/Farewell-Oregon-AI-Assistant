@@ -80,6 +80,10 @@ class Settings:
     # "full" uses EVAL_COUNT questions; "quick" uses EVAL_QUICK_COUNT for fast iteration.
     eval_mode: str = field(default_factory=lambda: _env("EVAL_MODE", "full").strip().lower())
     eval_quick_count: int = field(default_factory=lambda: int(_env("EVAL_QUICK_COUNT", "20")))
+    # Retrieval used by the eval: "dense", "text" (BM25) or "hybrid" (RRF + rerank).
+    eval_retrieval_mode: str = field(
+        default_factory=lambda: _env("EVAL_RETRIEVAL_MODE", "hybrid").strip().lower()
+    )
     # Parallel judge calls. Keep 1 on the free tier; raise it once billing is enabled.
     eval_workers: int = field(default_factory=lambda: int(_env("EVAL_WORKERS", "1")))
     # Pause after each fresh answer-generation call (seconds). 0 once billing is enabled.

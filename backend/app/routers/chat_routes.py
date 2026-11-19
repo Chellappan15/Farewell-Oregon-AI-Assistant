@@ -3,6 +3,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
 from auth.dependencies import get_current_user
+from rag.context_builder import RetrievalMode
 from services.chat_service import (
     create_chat,
     delete_chat,
@@ -15,6 +16,7 @@ from services.chat_service import (
 
 class ChatRequest(BaseModel):
     query: str = Field(min_length=1, max_length=1000)
+    retrieval_mode: RetrievalMode = "hybrid"
 
 
 chat_router = APIRouter(prefix="/chat")
@@ -56,6 +58,7 @@ def query_chat(
         user_id=int(current_user["user_id"]),
         chat_id=chat_id,
         query=request.query,
+        retrieval_mode=request.retrieval_mode,
     )
 
 
@@ -70,6 +73,7 @@ def query_chat_stream(
             user_id=int(current_user["user_id"]),
             chat_id=chat_id,
             query=request.query,
+            retrieval_mode=request.retrieval_mode,
         ),
         media_type="text/plain; charset=utf-8",
     )

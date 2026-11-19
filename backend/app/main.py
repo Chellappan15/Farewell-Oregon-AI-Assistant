@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,12 +10,19 @@ from db.connect import DatabaseUnavailableError
 from routers.chat_routes import chat_router
 from routers.user_routes import user_router
 from services.exceptions import ChatNotFoundError
+from rag.context_builder import ensure_bm25_index
 
 # Eval
 from eval.evaluator import evaluator
 
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    ensure_bm25_index()
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,

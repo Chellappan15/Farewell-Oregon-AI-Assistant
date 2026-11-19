@@ -105,7 +105,7 @@ def evaluator():
         commit = _git_commit()
         stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
         RESULTS_DIR.mkdir(exist_ok=True)
-        base = RESULTS_DIR / f"{stamp}_{settings.eval_mode}_{commit}"
+        base = RESULTS_DIR / f"{stamp}_{settings.eval_mode}_{settings.eval_retrieval_mode}_{commit}"
 
         df.to_csv(f"{base}_rows.csv", index=False)
 
@@ -113,6 +113,8 @@ def evaluator():
             "timestamp_utc": stamp,
             "git_commit": commit,
             "eval_mode": settings.eval_mode,
+            "retrieval_mode": settings.eval_retrieval_mode,
+            "retrieval_top_k": settings.retrieval_top_k,
             "rows": len(df),
             "answer_model": settings.gemini_model,
             "judge_model": JUDGE_MODEL,

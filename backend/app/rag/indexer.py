@@ -41,6 +41,11 @@ def index_documents() -> int:
         embeddings=[records[i][2] for i in ids],
     )
     logger.info("Indexed %d chunks, removed %d stale chunks", len(ids), len(stale_ids))
+
+    # Keep the BM25 index in sync with Chroma (imported here to avoid a circular import).
+    from hybrid_search.bm25_indexer import build_bm25_index
+    build_bm25_index()
+
     return len(ids)
 
 

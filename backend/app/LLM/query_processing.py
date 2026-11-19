@@ -3,7 +3,7 @@ import logging
 from core.config import settings
 from ai.gemini_client import get_gemini_client
 from db.chat_queries import chatProgress, get_chat_history
-from rag.retriever import retrieve_context
+from rag.context_builder import RetrievalMode, build_context
 from ai.tools.handlers import handlers
 from utils.time_utils import utc_now_iso
 from LLM.prompt_renderer import render_gemini_prompt
@@ -14,7 +14,7 @@ import json
 
 logger = logging.getLogger(__name__)
 
-def getResults(query:str, user_id: int, chat_id: int):
+def getResults(query:str, user_id: int, chat_id: int, retrieval_mode: RetrievalMode = "hybrid"):
     final_text = ""
     try:
         # Chat history
@@ -24,7 +24,7 @@ def getResults(query:str, user_id: int, chat_id: int):
         print("After modification: ", modified_history, end="\n\n")
 
         # Context
-        context = retrieve_context(query=query)
+        context = build_context(query=query, mode=retrieval_mode)
         print("Before modification: ", context, end="\n\n")
         modified_context = chunk_selection(context)
         print("After modification: ", modified_context, end="\n\n")
@@ -83,7 +83,7 @@ def getResults(query:str, user_id: int, chat_id: int):
             )
 
 
-def getResultsStream(query: str, user_id: int, chat_id: int):
+def getResultsStream(query: str, user_id: int, chat_id: int, retrieval_mode: RetrievalMode = "hybrid"):
     final_text = ""
     try:
         # Chat history
@@ -91,7 +91,7 @@ def getResultsStream(query: str, user_id: int, chat_id: int):
         modified_history = history_selection(history)
 
         # Context
-        context = retrieve_context(query=query)
+        context = build_context(query=query, mode=retrieval_mode)
         modified_context = chunk_selection(context)
 
         prompt = render_gemini_prompt(

@@ -6,7 +6,8 @@ import type {
   ProcessQueryResponse,
   NewChatResponse,
   ChatMessage,
-  ErrorInterface
+  ErrorInterface,
+  RetrievalMode
 } from "../types/chat";
 
 // Chat creation
@@ -100,12 +101,13 @@ export async function getChatMessages(chatId: number): Promise<ChatMessage[] | E
 // Query processing
 export async function processQuery(
   chatId: number,
-  query: string
+  query: string,
+  retrievalMode: RetrievalMode = "hybrid"
 ): Promise<ProcessQueryResponse> {
   try {
     const response = await apiClient.post<ProcessQueryResponse>(
       `/chat/${chatId}`,
-      { query }
+      { query, retrieval_mode: retrievalMode }
     );
     return response.data;
   } catch (error) {
@@ -118,7 +120,8 @@ export async function processQuery(
 export async function processQueryStream(
   chatId: number,
   query: string,
-  onChunk: (chunk: string) => void
+  onChunk: (chunk: string) => void,
+  retrievalMode: RetrievalMode = "hybrid"
 ): Promise<string> {
   try {
     const token = localStorage.getItem("dg_auth_token");
@@ -129,7 +132,7 @@ export async function processQueryStream(
         "Content-Type": "application/json",
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
-      body: JSON.stringify({ query }),
+      body: JSON.stringify({ query, retrieval_mode: retrievalMode }),
     });
 
     if (!response.ok || !response.body) {

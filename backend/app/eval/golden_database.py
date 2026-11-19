@@ -11,7 +11,7 @@ from diskcache import Cache
 from core.config import settings
 from eval.llm_answers import generate_answer
 from LLM.token_estimator import chunk_selection
-from rag.retriever import retrieve_context
+from rag.context_builder import RETRIEVAL_MODES, build_context, ensure_bm25_index
 
 logger = logging.getLogger(__name__)
 
@@ -98,6 +98,12 @@ def create_dataset() -> tuple[Dataset, list[dict]]:
     (user_input, retrieved_contexts, response, reference) and a parallel
     list of per-row metadata (id, evaluation_type) in the same order.
     """
+    mode = settings.eval_retrieval_mode
+    if mode not in RETRIEVAL_MODES:
+        raise ValueError(f"EVAL_RETRIEVAL_MODE must be one of {RETRIEVAL_MODES}, got {mode!r}")
+    if mode in ("text", "hybrid"):
+        ensure_bm25_index()
+
     try:
         golden_rows = select_rows(load_golden_data(), eval_size())
         cache = _answer_cache()
@@ -108,7 +114,7 @@ def create_dataset() -> tuple[Dataset, list[dict]]:
 
         for item in golden_rows:
             try:
-                chunks = chunk_selection(retrieve_context(item["question"]))
+                chunks = chunk_selection(build_context(item["question"], mode))
                 contexts = [chunk["text"] for chunk in chunks]
                 key = _answer_key(item["question"], contexts)
                 answer = cache.get(key) if cache is not None else None
@@ -144,8 +150,8 @@ def create_dataset() -> tuple[Dataset, list[dict]]:
         if cache is not None:
             cache.close()
         logger.info(
-            "Created eval dataset: %d rows, %d failed, %d selected, %d answers from cache",
-            len(rows), failed, len(golden_rows), cache_hits,
+            "Created eval dataset (retrieval=%s): %d rows, %d failed, %d selected, %d answers from cache",
+            mode, len(rows), failed, len(golden_rows), cache_hits,
         )
         if not rows:
             raise RuntimeError("No eval rows were created; check the logs above.")

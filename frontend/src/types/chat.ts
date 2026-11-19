@@ -53,6 +53,8 @@ export type ProcessQueryResponse = ApiResponse<string>;
 
 export type GetChatMessagesResponse = ApiResponse<ChatMessage[]>;
 
+export type RetrievalMode = "dense" | "text" | "hybrid";
+
 export interface ChatContextType {
   chatList: ChatList[];
   activeChatId: number | null;
@@ -68,5 +70,7 @@ export interface ChatContextType {
   fetchChatList: () => Promise<ChatList[]>;
   fetchChatMessages: (chatId: number) => Promise<ChatMessage[] | ErrorInterface>;
   sendQuery: (query: string) => Promise<void>;
+  retrievalMode: RetrievalMode;
+  setRetrievalMode: (mode: RetrievalMode) => void;
   // clearActiveChat: () => void;
 }
