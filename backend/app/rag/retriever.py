@@ -10,7 +10,6 @@ from rag.embedding_model import get_embedding_model
 logger = logging.getLogger(__name__)
 
 _client = chromadb.PersistentClient(path=settings.chroma_db_path)
-# One Chroma collection per game, created on first use
 _collections: dict[str, Any] = {}
 
 _HEADER_KEYS = ("title", "section", "subsection", "topic")

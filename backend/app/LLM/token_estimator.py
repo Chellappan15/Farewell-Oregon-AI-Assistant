@@ -25,8 +25,6 @@ def history_selection(history: list[dict[str, Any]]) -> list[dict[str, Any]]:
     history_token = 0
     selected = []
 
-    # The current question is saved before the LLM call and is sent to the
-    # model separately, so leave it out of the conversation history.
     if history and history[-1].get("role") == "user":
         history = history[:-1]
 
@@ -38,7 +36,6 @@ def history_selection(history: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
         history_token += message_tokens
 
-        # Send the LLM only role + text (no token count or timestamp)
         selected.insert(
             0,
             {

@@ -10,14 +10,12 @@ export const apiClient = axios.create({
   timeout: 30000,
 });
 
-// Request interceptor: Attach JWT Bearer token if valid session exists
 apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("dg_auth_token");
     const expiresAt = localStorage.getItem("dg_auth_expires_at");
 
     if (token) {
-      // Check 24-hour expiration validity
       if (expiresAt && new Date(expiresAt).getTime() <= Date.now()) {
         localStorage.removeItem("dg_auth_token");
         localStorage.removeItem("dg_auth_user");
@@ -33,7 +31,6 @@ apiClient.interceptors.request.use(
   }
 );
 
-// Response interceptor: Handle 401 Unauthorized globally
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -47,7 +44,6 @@ apiClient.interceptors.response.use(
       localStorage.removeItem("dg_auth_user");
       localStorage.removeItem("dg_auth_expires_at");
 
-      // Redirect to login if not already on login or register page
       if (
         typeof window !== "undefined" &&
         !window.location.pathname.startsWith("/login") &&

@@ -24,7 +24,6 @@ export interface AISubsystem {
   stats?: string;
 }
 
-// --- Backend API Integration Types ---
 
 export interface ChatList {
   chat_id: number;

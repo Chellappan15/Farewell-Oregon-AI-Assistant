@@ -28,7 +28,6 @@ export const IntelligencePanel: React.FC<IntelligencePanelProps> = ({
 
   return (
     <aside className="intelligence-panel">
-      {/* Header */}
       <div className="intelligence-header">
         <div className="intelligence-title-row">
           <div className="intelligence-icon-tag">
@@ -56,14 +55,12 @@ export const IntelligencePanel: React.FC<IntelligencePanelProps> = ({
         </div>
       </div>
 
-      {/* Subsystem Cards */}
       <div className="intelligence-body">
         <div className="subsystems-group">
           <div className="group-label">
             <span>CORE SUBSYSTEMS</span>
           </div>
 
-          {/* RAG Status */}
           <div className="subsystem-card">
             <div className="subsystem-card-top">
               <div className="subsystem-title-row">
@@ -81,7 +78,6 @@ export const IntelligencePanel: React.FC<IntelligencePanelProps> = ({
             </div>
           </div>
 
-          {/* Conversation Memory Status */}
           <div className="subsystem-card">
             <div className="subsystem-card-top">
               <div className="subsystem-title-row">
@@ -99,7 +95,6 @@ export const IntelligencePanel: React.FC<IntelligencePanelProps> = ({
             </div>
           </div>
 
-          {/* Tools Status */}
           <div className="subsystem-card">
             <div className="subsystem-card-top">
               <div className="subsystem-title-row">
@@ -118,7 +113,6 @@ export const IntelligencePanel: React.FC<IntelligencePanelProps> = ({
             </div>
           </div>
 
-          {/* Agent Loop Status */}
           <div className="subsystem-card">
             <div className="subsystem-card-top">
               <div className="subsystem-title-row">
@@ -137,7 +131,6 @@ export const IntelligencePanel: React.FC<IntelligencePanelProps> = ({
           </div>
         </div>
 
-        {/* AI Pipeline Architecture Schema */}
         <div className="pipeline-section">
           <div className="group-label">
             <span>PIPELINE FLOW</span>
@@ -184,7 +177,6 @@ export const IntelligencePanel: React.FC<IntelligencePanelProps> = ({
           </div>
         </div>
 
-        {/* System Diagnostics / Telemetry */}
         <div className="telemetry-section">
           <div className="telemetry-grid">
             <div className="telemetry-item">

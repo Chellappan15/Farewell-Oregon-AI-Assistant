@@ -11,11 +11,9 @@ function App() {
       <AuthProvider>
         <ChatProvider>
           <Routes>
-            {/* Public Authentication Routes */}
             <Route path="/login" element={<AuthPage />} />
             <Route path="/register" element={<AuthPage />} />
 
-            {/* Protected Application Routes */}
             <Route
               path="/"
               element={
@@ -33,7 +31,6 @@ function App() {
               }
             />
 
-            {/* Fallback */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </ChatProvider>

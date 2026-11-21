@@ -71,7 +71,6 @@ def chatProgress(id: int, chat_id: int, chat_title: str, data) -> int:
             cursor.close()
         conn.close()
 
-# Front-end requests
 def get_chats_query(user_id: int):
     conn = get_db_connection()
     cursor = None
@@ -145,7 +144,6 @@ def retrieve_messages(user_id: int, chat_id: int):
     try:
         cursor = conn.cursor(dictionary=True)
 
-        # Check if chat id exists
         query = """
         SELECT chat_id
         FROM chat

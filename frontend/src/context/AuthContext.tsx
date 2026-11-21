@@ -29,7 +29,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Initialize session from localStorage (with 24h validity check)
   useEffect(() => {
     const initializeSession = async () => {
       try {
@@ -41,14 +40,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const isExpired = new Date(storedExpiresAt).getTime() <= Date.now();
 
           if (isExpired) {
-            // Automatically clear expired session (> 24 hours)
             localStorage.removeItem(STORAGE_KEY_TOKEN);
             localStorage.removeItem(STORAGE_KEY_USER);
             localStorage.removeItem(STORAGE_KEY_EXPIRES_AT);
             setUser(null);
             setToken(null);
           } else {
-            // Restore active session
             setToken(storedToken);
             if (storedUser) {
               try {
@@ -58,7 +55,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               }
             }
 
-            // Verify with /auth/me in background to keep user data fresh
             try {
               const freshUser = await authService.getCurrentUser();
               setUser(freshUser);
@@ -93,10 +89,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const handleRegister = async (credentials: RegisterCredentials): Promise<void> => {
-    // Register
     await authService.register(credentials);
 
-    // Automatically log in to issue JWT session
     await handleLogin({
       email: credentials.email,
       password: credentials.password,

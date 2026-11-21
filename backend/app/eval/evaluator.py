@@ -25,7 +25,6 @@ from core.config import settings
 logger = logging.getLogger(__name__)
 
 JUDGE_MODEL = "gemini-3.5-flash-lite"
-# 1 generated question per answer instead of RAGAS's default 3: saves 2 judge calls per row.
 RELEVANCY_STRICTNESS = 1
 answer_relevancy = AnswerRelevancy(strictness=RELEVANCY_STRICTNESS)
 METRICS = [
@@ -48,7 +47,6 @@ class LocalEmbeddings(Embeddings):
         return get_embedding_model().encode(text).tolist()
 
 
-# RAGAS cache keys don't include the model name, so keep one cache folder per judge model.
 _judge_cache = (
     DiskCacheBackend(cache_dir=str(Path(settings.eval_cache_dir) / f"judge_{JUDGE_MODEL}"))
     if settings.eval_cache

@@ -1,6 +1,5 @@
 from db.connect import get_db_connection
 
-# Tables the GTA 6 tools may read (table names cannot be query parameters)
 _TABLES = {"gta6_characters", "gta6_regions", "gta6_editions"}
 
 

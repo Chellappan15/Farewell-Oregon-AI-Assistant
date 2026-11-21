@@ -22,7 +22,6 @@ def index_documents(game: str = DEFAULT_GAME) -> int:
     chunks = result["chunks"]
     embeddings = result["embeddings"].tolist()
 
-    # Build the new index, skipping exact duplicate chunks.
     records: dict[str, tuple[str, dict, list[float]]] = {}
     for chunk, embedding in zip(chunks, embeddings):
         chunk_id = _chunk_id(chunk.page_content, chunk.metadata)
@@ -30,7 +29,6 @@ def index_documents(game: str = DEFAULT_GAME) -> int:
 
     collection = get_collection(game)
 
-    # Remove chunks that no longer exist in the source document.
     existing_ids = set(collection.get(include=[])["ids"])
     stale_ids = list(existing_ids - records.keys())
     if stale_ids:
@@ -45,7 +43,6 @@ def index_documents(game: str = DEFAULT_GAME) -> int:
     )
     logger.info("Indexed %d %s chunks, removed %d stale chunks", len(ids), game, len(stale_ids))
 
-    # Keep the BM25 index in sync with Chroma (imported here to avoid a circular import).
     from hybrid_search.bm25_indexer import build_bm25_index
     build_bm25_index(game)
 

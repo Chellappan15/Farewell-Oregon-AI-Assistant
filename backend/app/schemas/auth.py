@@ -4,7 +4,6 @@ from pydantic import BaseModel, Field, field_validator
 
 EMAIL_REGEX = re.compile(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
 
-# bcrypt only uses the first 72 bytes and bcrypt>=5 raises for longer input.
 MAX_PASSWORD_BYTES = 72
 
 

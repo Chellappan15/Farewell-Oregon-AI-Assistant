@@ -29,14 +29,12 @@ def getResults(
     final_text = ""
     timer = RequestTimer(game=game, mode=retrieval_mode, stream=False)
     try:
-        # Chat history
         history = get_chat_history(chat_id=chat_id, user_id=user_id)
         timer.lap("history")
         print("Before modification: ", history, end="\n\n")
         modified_history = history_selection(history)
         print("After modification: ", modified_history, end="\n\n")
 
-        # Context
         context = build_context(query=query, mode=retrieval_mode, game=game)
         timer.lap("retrieval")
         print("Before modification: ", context, end="\n\n")
@@ -81,7 +79,6 @@ def getResults(
         return ({
             'error': handle_gemini_exception(e)
         })
-    # Save and return final output
     finally:
         timer.log()
         if final_text:
@@ -108,12 +105,10 @@ def getResultsStream(
     final_text = ""
     timer = RequestTimer(game=game, mode=retrieval_mode, stream=True)
     try:
-        # Chat history
         history = get_chat_history(chat_id=chat_id, user_id=user_id)
         modified_history = history_selection(history)
         timer.lap("history")
 
-        # Context
         context = build_context(query=query, mode=retrieval_mode, game=game)
         modified_context = chunk_selection(context)
         timer.lap("retrieval")
@@ -132,8 +127,6 @@ def getResultsStream(
             config=tool_config
         )
 
-        # Collect every part of the model's turn: a tool request can be split across
-        # chunks, and several tools can be requested at once.
         turn_parts = []
         wants_tools = False
 
@@ -145,14 +138,12 @@ def getResultsStream(
             if chunk.function_calls:
                 wants_tools = True
 
-            # Stream text live until the model asks for a tool
             if not wants_tools and chunk.text:
                 timer.since_start("first_token")
                 final_text += chunk.text
                 yield chunk.text
 
         if wants_tools:
-            # Tool rounds run non-streamed; the final answer is sent in one piece
             tool_text = run_tools(
                 types.Content(role="model", parts=turn_parts),
                 modified_history,
@@ -170,8 +161,6 @@ def getResultsStream(
         logger.info("Gemini stream completed with %d characters", len(final_text))
 
     except Exception as e:
-        # Headers are already sent, so the error must be streamed as text.
-        # (A `return` inside a generator just ends the stream silently.)
         logger.exception("Streaming query failed for chat_id=%s", chat_id)
         timer.fields["status"] = "error"
         error = handle_gemini_exception(e)
@@ -179,7 +168,6 @@ def getResultsStream(
 
     finally:
         timer.log()
-        # Save whatever the model produced; never save an empty answer
         if final_text:
             chatProgress(
                 id=user_id,

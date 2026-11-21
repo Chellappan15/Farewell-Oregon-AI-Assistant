@@ -34,7 +34,6 @@ export const AuthPage: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // If already logged in, redirect to destination or home
   useEffect(() => {
     if (isAuthenticated) {
       const from = (location.state as { from?: { pathname?: string } })?.from?.pathname || "/";
@@ -101,7 +100,6 @@ export const AuthPage: React.FC = () => {
         setSuccessMessage("Access granted. Initializing tactical feed...");
       }
 
-      // Navigate will trigger via useEffect once isAuthenticated updates
       const from = (location.state as { from?: { pathname?: string } })?.from?.pathname || "/";
       navigate(from, { replace: true });
     } catch (err: unknown) {
@@ -124,13 +122,10 @@ export const AuthPage: React.FC = () => {
 
   return (
     <div className="auth-page-container">
-      {/* Background ambient lighting */}
       <div className="auth-ambient-glow-amber" />
       <div className="auth-ambient-glow-red" />
 
-      {/* Main Terminal Card */}
       <div className="auth-card">
-        {/* Tactical Header Badge */}
         <div className="auth-header">
           <div className="auth-brand">
             <div className="auth-brand-icon">
@@ -147,7 +142,6 @@ export const AuthPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Tab Switcher */}
         <div className="auth-tabs">
           <button
             type="button"
@@ -171,7 +165,6 @@ export const AuthPage: React.FC = () => {
           </button>
         </div>
 
-        {/* Heading */}
         <div className="auth-heading-group">
           <h2 className="auth-heading">
             {isRegister ? "Enroll Survivor Clearance" : "Authorize Terminal Access"}
@@ -183,7 +176,6 @@ export const AuthPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Error Alert */}
         {errorMessage && (
           <div className="auth-alert auth-alert-error animate-fadeIn">
             <AlertCircle size={16} className="auth-alert-error-icon" />
@@ -191,7 +183,6 @@ export const AuthPage: React.FC = () => {
           </div>
         )}
 
-        {/* Success Alert */}
         {successMessage && (
           <div className="auth-alert auth-alert-success animate-fadeIn">
             <CheckCircle2 size={16} className="auth-alert-success-icon" />
@@ -199,9 +190,7 @@ export const AuthPage: React.FC = () => {
           </div>
         )}
 
-        {/* Auth Form */}
         <form onSubmit={handleSubmit} className="auth-form">
-          {/* Name Field (Register only) */}
           {isRegister && (
             <div className="auth-field">
               <label className="auth-label">
@@ -222,7 +211,6 @@ export const AuthPage: React.FC = () => {
             </div>
           )}
 
-          {/* Email Field */}
           <div className="auth-field">
             <label className="auth-label">
               Callsign / Email Address <span className="auth-required">*</span>
@@ -242,7 +230,6 @@ export const AuthPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Password Field */}
           <div className="auth-field">
             <label className="auth-label">
               Security Passcode <span className="auth-required">*</span>
@@ -273,7 +260,6 @@ export const AuthPage: React.FC = () => {
             </p>
           </div>
 
-          {/* Confirm Password (Register only) */}
           {isRegister && (
             <div className="auth-field">
               <label className="auth-label">
@@ -295,7 +281,6 @@ export const AuthPage: React.FC = () => {
             </div>
           )}
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={submitting}
@@ -315,7 +300,6 @@ export const AuthPage: React.FC = () => {
           </button>
         </form>
 
-        {/* Bottom Link */}
         <div className="auth-card-footer">
           {isRegister ? (
             <p className="auth-footer-prompt">

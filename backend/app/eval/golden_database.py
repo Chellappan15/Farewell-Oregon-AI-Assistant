@@ -18,8 +18,7 @@ logger = logging.getLogger(__name__)
 
 _SAMPLE_SEED = 42
 _MIN_PER_TYPE = 3
-# Bump when the answer prompt in llm_answers.py changes, so cached answers are not reused.
-_ANSWER_PROMPT_VERSION = "v3"  # v3: shared game_prompt.j2 with the game name
+_ANSWER_PROMPT_VERSION = "v3"
 
 def load_golden_data(game: str = DEFAULT_GAME) -> list[dict]:
     """Read a game's golden JSONL file into a list of rows."""
@@ -69,7 +68,6 @@ def select_rows(rows: list[dict], count: int) -> list[dict]:
         etype: min(len(group), max(_MIN_PER_TYPE, round(count * len(group) / len(rows))))
         for etype, group in groups.items()
     }
-    # Fix rounding drift by adjusting the largest type.
     largest = max(groups, key=lambda etype: len(groups[etype]))
     alloc[largest] = max(0, min(len(groups[largest]), alloc[largest] + count - sum(alloc.values())))
 
@@ -130,7 +128,6 @@ def create_dataset() -> tuple[Dataset, list[dict]]:
                 else:
                     cache_hits += 1
             except Exception:
-                # One bad question should not stop the whole eval run
                 failed += 1
                 logger.exception("Eval failed for %s", item.get("id"))
                 continue

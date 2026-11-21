@@ -5,7 +5,6 @@ import TypingIndicator from "./TypingIndicator";
 import { useChat } from "../../context/ChatContext";
 import { getGameProfile, type PromptIcon } from "../../utils/games";
 
-// Icons for the suggested prompts in each game's profile
 const PROMPT_ICONS: Record<PromptIcon, React.ReactNode> = {
   skull: <Skull size={16} />,
   crosshair: <Crosshair size={16} />,
@@ -26,7 +25,6 @@ export const MessageList: React.FC = () => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isQueryProcessing, isMessagesLoading]);
 
-  // 1. If messages are currently loading from endpoint, display the tactical loader
   if (isMessagesLoading) {
     return (
       <div className="messages-loading-state">
@@ -41,7 +39,6 @@ export const MessageList: React.FC = () => {
     );
   }
 
-  // 2. If no messages are loaded for this chat, show prompt suggestions
   if (!messages || messages.length === 0) {
     return (
       <div className="empty-chat-state">
@@ -72,7 +69,6 @@ export const MessageList: React.FC = () => {
     );
   }
 
-  // 3. Messages loaded from history/chat: render the message list
   return (
     <div className="message-list-container">
       {messages.map((msg, idx) => (

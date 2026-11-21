@@ -27,14 +27,12 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   const [activeChatId, setActiveChatId] = useState<number | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
 
-  // Centralized Loading States
   const [isChatListLoading, setIsChatListLoading] = useState<boolean>(false);
   const [isMessagesLoading, setIsMessagesLoading] = useState<boolean>(false);
   const [isQueryProcessing, setIsQueryProcessing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [serverStats, setServerStats] = useState<boolean>(false);
 
-  // Retrieval mode chosen in the input box (remembered across reloads)
   const [retrievalMode, setRetrievalModeState] = useState<RetrievalMode>(() => {
     const saved = localStorage.getItem("dg_retrieval_mode");
     return saved === "dense" || saved === "text" || saved === "hybrid" ? saved : "hybrid";
@@ -45,7 +43,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     localStorage.setItem("dg_retrieval_mode", mode);
   };
 
-  // Game chosen in the input box (remembered across reloads)
   const [game, setGameState] = useState<GameKey>(() => {
     const saved = localStorage.getItem("dg_game");
     return saved === "gta6" || saved === "days_gone" ? saved : "days_gone";
@@ -56,7 +53,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     localStorage.setItem("dg_game", next);
   };
 
-  // Server status
   useEffect(() => {
     const fetchServerStatus = async() => {
       const isLive = await serverStatus();
@@ -67,7 +63,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   }, []);
 
 
-  // Handler for new chat creation
   const handleCreateNewChat = async (): Promise<number | null> => {
     setError(null);
     try {
@@ -97,7 +92,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     }
   };
 
-  // Handler for chat deletion
   const handleDeleteChat = async (chatId: number): Promise<boolean> => {
     setError(null);
     try {
@@ -121,7 +115,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     }
   };
 
-  // Chat list history retrieval
   const handleFetchChatList = async (): Promise<ChatList[]> => {
     setIsChatListLoading(true);
     setError(null);
@@ -141,7 +134,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   };
 
 
-  // Chat history retrieval
   const handleFetchChatMessages = async (
     chatId: number
   ): Promise<ErrorInterface | ChatMessage[] > => {
@@ -182,14 +174,12 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     }
   };
 
-  // Query processing handlers
   const handleSendQuery = async (query: string): Promise<void> => {
     const trimmed = query.trim();
     if (!trimmed) return;
 
     let targetChatId = activeChatId;
 
-    // If no active chat, create one first through the backend
     if (!targetChatId) {
       targetChatId = await handleCreateNewChat();
       console.log(targetChatId);
@@ -212,7 +202,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         const isFirstChunk = !hasStarted;
         hasStarted = true;
         setMessages((prev) => {
-          // First chunk adds the assistant message, later chunks append to it
           if (isFirstChunk) {
             return [...prev, { role: "assistant", content: chunk }];
           }
@@ -221,7 +210,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         });
       }, retrievalMode, game);
 
-      // If chat had default title "New chat", update title with query excerpt
       setChatList((prev) =>
         prev.map((c) => {
           if (c.chat_id === targetChatId && (c.chat_title === "New chat" || !c.chat_title)) {
@@ -246,7 +234,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   //   setMessages([]);
   // };
 
-  // When auth state changes, reload chat list or reset state
   useEffect(() => {
     const authenticateUser = () => {
       if (isAuthenticated && user?.id) {

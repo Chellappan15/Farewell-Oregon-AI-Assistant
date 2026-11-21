@@ -11,7 +11,6 @@ import type {
   GameKey
 } from "../types/chat";
 
-// Chat creation
 export async function createNewChat(): Promise<NewChatResponse> {
   try {
     const response = await apiClient.post<NewChatResponse>("/chat/new-chat");
@@ -22,7 +21,6 @@ export async function createNewChat(): Promise<NewChatResponse> {
   }
 }
 
-// Chat deletion
 export async function deleteChat(chatId: number): Promise<DeleteChatResponse> {
   try {
     const response = await apiClient.delete<DeleteChatResponse>("/chat/delete-chat", {
@@ -40,7 +38,6 @@ export async function deleteChat(chatId: number): Promise<DeleteChatResponse> {
   }
 }
 
-// Retrieve chat messages
 export async function getChatMessages(chatId: number): Promise<ChatMessage[] | ErrorInterface> {
   try {
     const response = await apiClient.get<{
@@ -65,7 +62,6 @@ export async function getChatMessages(chatId: number): Promise<ChatMessage[] | E
       (Array.isArray(response.data) ? response.data : []);
     console.log("Message data: ", rawList);
 
-    // Transform backend message formats ({ role, parts: [{text}], time_stamp }) to ChatMessage
     return (rawList as Record<string, unknown>[]).map((item) => {
       let content = "";
       if (typeof item.content === "string") {
@@ -99,7 +95,6 @@ export async function getChatMessages(chatId: number): Promise<ChatMessage[] | E
   }
 }
 
-// Query processing
 export async function processQuery(
   chatId: number,
   query: string,
@@ -118,7 +113,6 @@ export async function processQuery(
   }
 }
 
-// Streaming query processing: calls onChunk with each text chunk as it arrives
 export async function processQueryStream(
   chatId: number,
   query: string,
@@ -163,7 +157,6 @@ export async function processQueryStream(
   }
 }
 
-// Get the chat list
 export async function getChatList(): Promise<GetChatListResponse> {
   try {
     const response = await apiClient.get<GetChatListResponse>("/chat/");

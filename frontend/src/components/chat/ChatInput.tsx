@@ -23,12 +23,10 @@ interface OptionMenuProps<T extends string> {
   disabled?: boolean;
 }
 
-// Small dropdown used for both the game and the retrieval pickers
 function OptionMenu<T extends string>({ icon, title, value, options, onChange, disabled }: OptionMenuProps<T>) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Close the menu when clicking outside it
   useEffect(() => {
     if (!isOpen) return;
     const handleClickOutside = (e: MouseEvent) => {
@@ -100,7 +98,6 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   const { retrievalMode, setRetrievalMode, game, setGame } = useChat();
   const profile = getGameProfile(game);
 
-  // Auto-resize textarea
   useEffect(() => {
     const textarea = textareaRef.current;
     if (!textarea) return;

@@ -126,7 +126,6 @@ def run_retrieval_eval(
     results: list[dict] = []
     for mode in modes:
         logger.info("Evaluating %s retrieval mode=%s on %d questions", game, mode, len(golden))
-        # Warm-up so model loading is not counted in the first question's latency
         build_context(golden[0]["question"], mode, game)
         for row in golden:
             scores = score_row(row["question"], _evidence_lines(row), mode, game)

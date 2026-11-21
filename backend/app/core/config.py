@@ -14,7 +14,6 @@ _missing_required: list[str] = []
 def _env(name: str, default: str | None = None, *, required: bool = False) -> str | None:
     value = os.getenv(name, default)
     if required and not value:
-        # Collected and reported together after Settings() is built.
         _missing_required.append(name)
     return value
 
@@ -32,26 +31,21 @@ def _env_list(name: str, default: str) -> list[str]:
 
 @dataclass(frozen=True)
 class Settings:
-    # Database
     db_host: str = field(default_factory=lambda: _env("DB_HOST", "localhost"))
     db_port: int = field(default_factory=lambda: int(_env("DB_PORT", "3306")))
     db_user: str = field(default_factory=lambda: _env("DB_USER", required=True))
     db_password: str = field(default_factory=lambda: _env("DATABASE_PASSWORD", required=True))
     db_name: str = field(default_factory=lambda: _env("DB_NAME", "llm"))
     db_pool_size: int = field(default_factory=lambda: int(_env("DB_POOL_SIZE", "5")))
-    # SSL is ON unless explicitly disabled (only do that for local development).
     db_ssl_disabled: bool = field(default_factory=lambda: _env_bool("DB_SSL_DISABLED", False))
 
-    # Auth
     jwt_secret: str = field(default_factory=lambda: _env("JWT_SECRET", required=True))
     jwt_algorithm: str = field(default_factory=lambda: _env("JWT_ALGORITHM", "HS256"))
     jwt_expiration_hours: int = field(default_factory=lambda: int(_env("JWT_EXPIRATION_HOURS", "24")))
 
-    # LLM
     gemini_api_key: str = field(default_factory=lambda: _env("GEMINI_API_KEY", required=True))
     gemini_model: str = field(default_factory=lambda: _env("GEMINI_MODEL", "gemini-3.1-flash-lite"))
 
-    # RAG
     embedding_model: str = field(
         default_factory=lambda: _env("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
     )
@@ -60,7 +54,6 @@ class Settings:
     )
     chroma_collection: str = field(default_factory=lambda: _env("CHROMA_COLLECTION", "days_gone"))
     retrieval_top_k: int = field(default_factory=lambda: int(_env("RETRIEVAL_TOP_K", "5")))
-    # Chunks with a distance above this are dropped (lower = more similar).
     retrieval_max_distance: float = field(
         default_factory=lambda: float(_env("RETRIEVAL_MAX_DISTANCE", "1.2"))
     )
@@ -68,53 +61,40 @@ class Settings:
         default_factory=lambda: _env("KNOWLEDGE_BASE_PATH", str(_BACKEND_DIR / "Days Gone Data.md"))
     )
 
-    # Golden data json path
     golden_data: str = field(
         default_factory=lambda: _env("GOLDEN_DATA", str(_BACKEND_DIR / "Days Gone Golden Eval.jsonl"))
     )
 
-    # Eval count
     eval_count: int = field(
         default_factory=lambda: int(_env("EVAL_COUNT", "50"))
     )
-    # "full" uses EVAL_COUNT questions; "quick" uses EVAL_QUICK_COUNT for fast iteration.
     eval_mode: str = field(default_factory=lambda: _env("EVAL_MODE", "full").strip().lower())
     eval_quick_count: int = field(default_factory=lambda: int(_env("EVAL_QUICK_COUNT", "20")))
-    # Retrieval used by the eval: "dense", "text" (BM25) or "hybrid" (RRF + rerank).
     eval_retrieval_mode: str = field(
         default_factory=lambda: _env("EVAL_RETRIEVAL_MODE", "hybrid").strip().lower()
     )
-    # Game the eval runs on: "days_gone" or "gta6" (picks its golden set and indexes).
     eval_game: str = field(default_factory=lambda: _env("EVAL_GAME", "days_gone").strip().lower())
-    # Parallel judge calls. Keep 1 on the free tier; raise it once billing is enabled.
     eval_workers: int = field(default_factory=lambda: int(_env("EVAL_WORKERS", "1")))
-    # Pause after each fresh answer-generation call (seconds). 0 once billing is enabled.
     eval_sleep: float = field(default_factory=lambda: float(_env("EVAL_SLEEP", "4.5")))
-    # Cache generated answers and judge calls on disk so re-runs skip repeated API calls.
     eval_cache: bool = field(default_factory=lambda: _env_bool("EVAL_CACHE", True))
     eval_cache_dir: str = field(
         default_factory=lambda: _env("EVAL_CACHE_DIR", str(_BACKEND_DIR / "eval_results" / ".cache"))
     )
 
-    # Logging: DEBUG, INFO, WARNING, ERROR
     log_level: str = field(default_factory=lambda: _env("LOG_LEVEL", "INFO").strip().upper())
 
-    # API
     cors_origins: list[str] = field(
         default_factory=lambda: _env_list("CORS_ORIGINS", "*")
     )
 
-    # Context token budget
     tokens: int = field(
         default=3000
     )
 
-    # Chat history
     chat_history: int = field(
         default=3000
     )
 
-    # Reciprocal score
     rrf_k: int = 60
 
 

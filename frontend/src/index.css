@@ -53,7 +53,6 @@ body,
   -webkit-font-smoothing: antialiased;
 }
 
-/* Custom Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -69,7 +68,6 @@ body,
   background: #333f52;
 }
 
-/* --- Master Layout --- */
 .app-layout {
   display: flex;
   width: 100vw;
@@ -97,8 +95,6 @@ body,
   position: relative;
 }
 
-/* --- Common UI Components --- */
-/* Badges */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -166,7 +162,6 @@ body,
   50% { opacity: 0.5; transform: scale(0.85); }
 }
 
-/* Icon Buttons */
 .icon-button {
   display: inline-flex;
   align-items: center;
@@ -220,7 +215,6 @@ body,
   border: 1px solid rgba(16, 185, 129, 0.4);
 }
 
-/* --- Sidebar --- */
 .sidebar {
   width: 280px;
   height: 100vh;
@@ -279,7 +273,6 @@ body,
   margin-left: auto;
 }
 
-/* New Chat Button */
 .new-chat-button {
   width: 100%;
   display: flex;
@@ -306,7 +299,6 @@ body,
   transform: translateY(0);
 }
 
-/* Chat Search */
 .chat-search {
   display: flex;
   align-items: center;
@@ -347,7 +339,6 @@ body,
   color: var(--text-primary);
 }
 
-/* Recent Conversations */
 .recent-section {
   display: flex;
   flex-direction: column;
@@ -445,7 +436,6 @@ body,
   animation: spin 1s linear infinite;
 }
 
-/* Sidebar Bottom */
 .sidebar-bottom {
   margin-top: auto;
   padding-top: 14px;
@@ -547,7 +537,6 @@ body,
   animation: fadeIn 0.25s ease-out forwards;
 }
 
-/* --- Header --- */
 .app-header {
   height: 64px;
   background: var(--bg-main);
@@ -631,7 +620,6 @@ body,
   color: red;
 }
 
-/* Messages Loading Screen */
 .messages-loading-state {
   display: flex;
   flex-direction: column;
@@ -670,7 +658,6 @@ body,
   line-height: 1.5;
 }
 
-/* --- Chat Window --- */
 .chat-window-section {
   flex: 1;
   display: flex;
@@ -701,7 +688,6 @@ body,
   height: 1px;
 }
 
-/* Empty State / Welcome Screen */
 .empty-chat-state {
   display: flex;
   flex-direction: column;
@@ -783,7 +769,6 @@ body,
   line-height: 1.4;
 }
 
-/* Message Rows & Bubbles */
 .message-row {
   display: flex;
   gap: 14px;
@@ -885,7 +870,6 @@ body,
   word-break: break-word;
 }
 
-/* Markdown Rendering in Assistant Bubbles */
 .markdown-body {
   font-size: 13.5px;
   line-height: 1.65;
@@ -984,7 +968,6 @@ body,
   color: #e2e8f0;
 }
 
-/* Typing Indicator */
 .typing-indicator-container {
   display: flex;
   gap: 14px;
@@ -1046,7 +1029,6 @@ body,
   }
 }
 
-/* Chat Input Area */
 .chat-window-input-area {
   padding: 16px 24px 20px 24px;
   background: var(--bg-main);
@@ -1135,7 +1117,6 @@ body,
   gap: 4px;
 }
 
-/* --- Intelligence Panel --- */
 .intelligence-panel {
   width: 330px;
   height: 100%;
@@ -1261,7 +1242,6 @@ body,
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-/* Pipeline Flow */
 .pipeline-section {
   display: flex;
   flex-direction: column;
@@ -1314,7 +1294,6 @@ body,
   margin-bottom: 2px;
 }
 
-/* Telemetry Grid */
 .telemetry-section {
   margin-top: auto;
 }
@@ -1351,7 +1330,6 @@ body,
   color: var(--accent-emerald);
 }
 
-/* --- Responsive Breakpoints --- */
 @media (max-width: 1180px) {
   .intelligence-panel {
     position: absolute;
@@ -1415,9 +1393,6 @@ body,
   }
 }
 
-/* ========================================================================== */
-/* AUTHENTICATION & LOGIN PAGE STYLES                                         */
-/* ========================================================================== */
 
 .auth-page-container {
   min-height: 100vh;
@@ -1434,7 +1409,6 @@ body,
   overflow-x: hidden;
 }
 
-/* Ambient glow orbs */
 .auth-ambient-glow-amber {
   position: absolute;
   top: -10%;
@@ -1459,7 +1433,6 @@ body,
   pointer-events: none;
 }
 
-/* Main Terminal Card */
 .auth-card {
   width: 100%;
   max-width: 440px;
@@ -1479,7 +1452,6 @@ body,
   }
 }
 
-/* Card Header */
 .auth-header {
   display: flex;
   align-items: center;
@@ -1542,7 +1514,6 @@ body,
   animation: pulse-dot 2s infinite ease-in-out;
 }
 
-/* Tabs switcher */
 .auth-tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1579,7 +1550,6 @@ body,
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
-/* Titles */
 .auth-heading-group {
   margin-bottom: 22px;
 }
@@ -1598,7 +1568,6 @@ body,
   line-height: 1.5;
 }
 
-/* Alerts */
 .auth-alert {
   margin-bottom: 20px;
   padding: 12px 14px;
@@ -1634,7 +1603,6 @@ body,
   margin-top: 1px;
 }
 
-/* Form & Inputs */
 .auth-form {
   display: flex;
   flex-direction: column;
@@ -1728,7 +1696,6 @@ body,
   margin-top: 5px;
 }
 
-/* Submit Action Button */
 .auth-submit-btn {
   width: 100%;
   margin-top: 8px;
@@ -1771,7 +1738,6 @@ body,
   animation: spin 1s linear infinite;
 }
 
-/* Footer Links & Watermark */
 .auth-card-footer {
   margin-top: 24px;
   padding-top: 16px;
@@ -1806,7 +1772,6 @@ body,
   letter-spacing: 0.08em;
 }
 
-/* Protected Route Loading Screen */
 .auth-loading-screen {
   min-height: 100vh;
   width: 100%;
@@ -1835,7 +1800,6 @@ body,
   letter-spacing: 0.12em;
   color: #a8a29e;
 }
-/* Retrieval mode selector (inside the chat input) */
 .retrieval-mode {
   position: relative;
   flex-shrink: 0;

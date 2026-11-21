@@ -1,6 +1,5 @@
 from google.genai import types
 
-# Days Gone tools (MySQL: weapon_info, zombie_details)
 days_gone_tool = types.Tool(
     function_declarations=[
         {
@@ -42,7 +41,6 @@ days_gone_tool = types.Tool(
     ]
 )
 
-# GTA 6 tools (MySQL: gta6_characters, gta6_regions, gta6_editions, gta6_facts)
 gta6_tool = types.Tool(
     function_declarations=[
         {

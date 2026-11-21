@@ -18,7 +18,7 @@ DEFAULT_GAME: GameKey = "days_gone"
 @dataclass(frozen=True)
 class GameConfig:
     key: str
-    name: str                  # shown to the LLM and in logs
+    name: str
     knowledge_base_path: Path
     chroma_collection: str
     bm25_index_path: Path

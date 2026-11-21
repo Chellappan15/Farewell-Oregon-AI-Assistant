@@ -11,12 +11,10 @@ export const ChatPage: React.FC = () => {
     setActiveChatId,
   } = useChat();
 
-  // Load user's chat list on initial mount
   useEffect(() => {
     fetchChatList();
   }, []);
 
-  // Synchronize route param with active chat ID and load its messages
   useEffect(() => {
     if (chatId) {
       const numericId = Number(chatId);

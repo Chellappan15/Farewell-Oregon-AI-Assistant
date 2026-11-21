@@ -10,13 +10,11 @@ export const MainLayout: React.FC = () => {
 
   return (
     <div className="app-layout">
-      {/* Sidebar - responsive desktop / mobile */}
       <Sidebar
         isOpen={sidebarMobileOpen}
         onClose={() => setSidebarMobileOpen(false)}
       />
 
-      {/* Main Content Area */}
       <div className="main-content">
         <Header
           onToggleSidebar={() => setSidebarMobileOpen((prev) => !prev)}

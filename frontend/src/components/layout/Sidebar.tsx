@@ -58,7 +58,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <>
-      {/* Mobile backdrop */}
       <div
         className={`sidebar-backdrop ${isOpen ? "open" : ""}`}
         onClick={onClose}
@@ -66,7 +65,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
       />
 
       <aside className={`sidebar ${isOpen ? "open" : ""}`}>
-        {/* Logo / Brand Header */}
         <div className="sidebar-logo">
           <div className="logo-icon">
             <Gamepad2 size={22} className="logo-gamepad" />
@@ -88,7 +86,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
         </div>
 
-        {/* New Chat Button */}
         <button
           type="button"
           className="new-chat-button"
@@ -98,7 +95,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <span>New Chat</span>
         </button>
 
-        {/* Search */}
         <div className="chat-search">
           <Search size={16} className="search-icon" />
           <input
@@ -119,7 +115,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
         </div>
 
-        {/* Recent Chats Section */}
         <div className="recent-section">
           <p className="section-title">RECENT CONVERSATIONS</p>
 
@@ -172,7 +167,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         </div>
 
-        {/* Bottom Section */}
         <div className="sidebar-bottom">
           <button type="button" className="sidebar-button">
             <Settings size={18} />

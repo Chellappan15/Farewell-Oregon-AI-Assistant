@@ -1,5 +1,3 @@
-// Formats an ISO 8601 timestamp in the user's local time.
-// Older messages used "DD-MM-YYYY HH:MM AM" strings; those are shown as-is.
 export function formatTimestamp(value?: string): string {
   if (!value) return "";
   const date = new Date(value);

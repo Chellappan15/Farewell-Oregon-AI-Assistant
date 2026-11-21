@@ -18,7 +18,6 @@ from db.connect import get_db_connection
 from hybrid_search.bm25_indexer import index_path
 from rag.retriever import get_collection
 
-# Without this, every logger.info in the app is dropped (Python's default level is WARNING)
 logging.basicConfig(
     level=settings.log_level,
     format="%(asctime)s %(levelname)s %(name)s: %(message)s",
@@ -69,7 +68,6 @@ async def database_unavailable_handler(request: Request, exc: DatabaseUnavailabl
 
 @app.exception_handler(RequestValidationError)
 async def validation_error_handler(request: Request, exc: RequestValidationError):
-    # Return a single readable message (the frontend shows `detail` as text).
     first = exc.errors()[0] if exc.errors() else {}
     message = str(first.get("msg", "Invalid request.")).removeprefix("Value error, ")
     return JSONResponse(
@@ -128,7 +126,6 @@ def home():
 
 @app.get("/evaluate")
 def evaluate():
-    # Imported here so the app runs without the eval packages (requirements-eval.txt)
     try:
         from eval.evaluator import evaluator
     except ImportError:
