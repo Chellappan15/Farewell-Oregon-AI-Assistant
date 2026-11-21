@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 
 from auth.dependencies import get_current_user
 from rag.context_builder import RetrievalMode
+from core.games import DEFAULT_GAME, GameKey
 from services.chat_service import (
     create_chat,
     delete_chat,
@@ -17,6 +18,7 @@ from services.chat_service import (
 class ChatRequest(BaseModel):
     query: str = Field(min_length=1, max_length=1000)
     retrieval_mode: RetrievalMode = "hybrid"
+    game: GameKey = DEFAULT_GAME
 
 
 chat_router = APIRouter(prefix="/chat")
@@ -59,6 +61,7 @@ def query_chat(
         chat_id=chat_id,
         query=request.query,
         retrieval_mode=request.retrieval_mode,
+        game=request.game,
     )
 
 
@@ -74,6 +77,7 @@ def query_chat_stream(
             chat_id=chat_id,
             query=request.query,
             retrieval_mode=request.retrieval_mode,
+            game=request.game,
         ),
         media_type="text/plain; charset=utf-8",
     )

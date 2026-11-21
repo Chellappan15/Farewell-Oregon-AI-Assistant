@@ -6,24 +6,35 @@ from google.genai import types
 from core.config import settings
 from ai.tools.compare_weapons import compare_weapons
 from ai.tools.zombie_types import zombie_details
+from ai.tools.gta6_tools import compare_editions, get_character, get_game_facts, get_region
 
 logger = logging.getLogger(__name__)
 
 # Max model round-trips that request tools before we give up.
 _MAX_TOOL_ROUNDS = 5
 
+# Tool name -> function taking the call's args. Names are unique across games.
+_TOOLS = {
+    # Days Gone
+    "compare_weapons": lambda a: compare_weapons(a.get("first"), a.get("second")),
+    "zombie_details": lambda a: zombie_details(a.get("zombie_name")),
+    # GTA 6
+    "get_character": lambda a: get_character(a.get("name")),
+    "get_region": lambda a: get_region(a.get("name")),
+    "compare_editions": lambda a: compare_editions(),
+    "get_game_facts": lambda a: get_game_facts(a.get("topic")),
+}
+
 
 def _dispatch(call) -> dict[str, Any]:
     """Run one tool call. Errors go back to the model instead of crashing the request."""
     args = call.args or {}
+    tool = _TOOLS.get(call.name)
+    if tool is None:
+        logger.warning("Gemini requested unknown tool: %s", call.name)
+        return {"error": f"Unknown tool: {call.name}"}
     try:
-        if call.name == "compare_weapons":
-            result = compare_weapons(args.get("first"), args.get("second"))
-        elif call.name == "zombie_details":
-            result = zombie_details(args.get("zombie_name"))
-        else:
-            logger.warning("Gemini requested unknown tool: %s", call.name)
-            return {"error": f"Unknown tool: {call.name}"}
+        result = tool(args)
     except Exception:
         logger.exception("Tool %s failed with args %s", call.name, args)
         return {"error": f"The {call.name} tool failed. Answer without it if possible."}

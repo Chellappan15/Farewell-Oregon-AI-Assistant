@@ -1,19 +1,24 @@
 import logging
 from core.config import settings
+from core.games import DEFAULT_GAME
 from rag.retriever import retrieve_context
 from hybrid_search.bm25_indexer import search_bm25
 from hybrid_search.rerank import rerank_documents
 
 logger = logging.getLogger(__name__)
 
-def reciprocal_rank_function(query: str, chunk_size: int = settings.retrieval_top_k):
+def reciprocal_rank_function(
+    query: str,
+    chunk_size: int = settings.retrieval_top_k,
+    game: str = DEFAULT_GAME,
+):
     k = settings.rrf_k
     try:
         # Retrieve vector chunks
-        vector_chunks = retrieve_context(query=query, is_hybrid=True)
+        vector_chunks = retrieve_context(query=query, is_hybrid=True, game=game)
 
         # Retrieve best matching chunks
-        bm_chunks = search_bm25(query=query)
+        bm_chunks = search_bm25(query=query, game=game)
 
         fused = {}
         # RRF calculation

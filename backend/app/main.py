@@ -12,12 +12,14 @@ from routers.user_routes import user_router
 from services.exceptions import ChatNotFoundError
 from rag.context_builder import ensure_bm25_index
 from rag.indexer import ensure_vector_index
+from core.games import GAME_KEYS
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    ensure_vector_index()
-    ensure_bm25_index()
+    for game in GAME_KEYS:
+        ensure_vector_index(game)
+        ensure_bm25_index(game)
     yield
 
 

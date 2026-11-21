@@ -5,7 +5,7 @@ from langchain_core.documents import Document
 from langchain_text_splitters import MarkdownHeaderTextSplitter
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-from core.config import settings
+from core.games import DEFAULT_GAME, get_game
 
 logger = logging.getLogger(__name__)
 
@@ -28,8 +28,8 @@ def chunking_function_v1():
     return chunks
 
 
-def chunking_function() -> list[Document]:
-    markdown_path = Path(settings.knowledge_base_path)
+def chunking_function(game: str = DEFAULT_GAME) -> list[Document]:
+    markdown_path = Path(get_game(game).knowledge_base_path)
     try:
         markdown = markdown_path.read_text(encoding="utf-8")
 

@@ -4,29 +4,36 @@ from typing import Any
 import chromadb
 
 from core.config import settings
+from core.games import DEFAULT_GAME, get_game
 from rag.embedding_model import get_embedding_model
 
 logger = logging.getLogger(__name__)
 
 _client = chromadb.PersistentClient(path=settings.chroma_db_path)
-_collection = _client.get_or_create_collection(name=settings.chroma_collection)
+# One Chroma collection per game, created on first use
+_collections: dict[str, Any] = {}
 
 _HEADER_KEYS = ("title", "section", "subsection", "topic")
 
 
 def _source_label(metadata: dict[str, Any]) -> str:
     parts = [str(metadata[key]) for key in _HEADER_KEYS if metadata.get(key)]
-    return " > ".join(parts) if parts else "Days Gone guide"
+    return " > ".join(parts) if parts else "Game guide"
 
 
-def retrieve_context(query: str, limit: int | None = None, is_hybrid: bool = False) -> list[dict[str, Any]]:
+def retrieve_context(
+    query: str,
+    limit: int | None = None,
+    is_hybrid: bool = False,
+    game: str = DEFAULT_GAME,
+) -> list[dict[str, Any]]:
     """Return the most relevant chunks with their source and distance.
 
     Chunks further away than RETRIEVAL_MAX_DISTANCE are dropped, so weak
     matches are not passed to the LLM.
     """
     embedded_question = get_embedding_model().encode(query)
-    results = _collection.query(
+    results = get_collection(game).query(
         query_embeddings=[embedded_question.tolist()],
         n_results=limit or settings.retrieval_top_k,
         include=["documents", "metadatas", "distances"],
@@ -68,13 +75,17 @@ def retrieve_context(query: str, limit: int | None = None, is_hybrid: bool = Fal
             )
 
     logger.info(
-        "Retrieved %d of %d chunks within distance %.2f",
+        "Retrieved %d of %d %s chunks within distance %.2f",
         len(chunks),
         len(documents),
+        game,
         settings.retrieval_max_distance,
     )
     return chunks
 
 
-def get_collection():
-    return _collection
+def get_collection(game: str = DEFAULT_GAME):
+    name = get_game(game).chroma_collection
+    if name not in _collections:
+        _collections[name] = _client.get_or_create_collection(name=name)
+    return _collections[name]

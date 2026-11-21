@@ -122,7 +122,7 @@ INSERT INTO zombie_details (name, type, about, how_to_kill) VALUES
     'You can shoot Criers and knock them down with melee weapons. Dead Criers will yield a Crier beak, which can be traded for trust and credits at any camp.\nBurn Crier nests, which can be found in dead trees and on telephone poles. When the nests are gone, the Criers will fly away.'
 ),
 (
-    'Maraudesr',
+    'Marauders',
     'Marauders',
     'These people are found in enemy camps which will attack you on sight. Enemy camps can be found throughout the Farewell Wilderness. Made up of Marauders, Rippers or Anarchists, they are filled with murderers and thieves who prey on the weak.\nMarauders will shoot you from a distance but will also toss Molotov Cocktails. Expect their camps to have plenty of traps from tripwire to bear traps on the ground.',
     'Use stealth of as long as possible.\nMark enemies with your binoculars for a better sense of where everyone is.\nTake out snipers ASAP using a special weapon which are great for long distances.\nShoot them right before they toss a Molotov. This will cause the Molotov Cocktail to explode on their side taking down one or more enemies.\nHeavily armored Marauders (fully suited) are harder to kill. Try using throwables and focus on headshots. Keep your distance because they have a flamethrower.'

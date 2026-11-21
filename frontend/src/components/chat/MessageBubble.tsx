@@ -3,12 +3,15 @@ import ReactMarkdown from "react-markdown";
 import { User, Bot, Copy, Check } from "lucide-react";
 import type { ChatMessage } from "../../types/chat";
 import { formatTimestamp } from "../../utils/formatTimestamp";
+import { useChat } from "../../context/ChatContext";
+import { getGameProfile } from "../../utils/games";
 
 export interface MessageBubbleProps {
   message: ChatMessage;
 }
 
 export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
+  const profile = getGameProfile(useChat().game);
   const [copied, setCopied] = useState(false);
   const isUser = message.role === "user";
 
@@ -31,7 +34,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
       <div className={`message-bubble ${isUser ? "user-bubble" : "assistant-bubble"}`}>
         <div className="message-header-meta">
           <span className="message-sender-name">
-            {isUser ? "Survivor (Player)" : "Farewell Oregon AI Assistant"}
+            {isUser ? profile.playerLabel : `${profile.assistantName} Assistant`}
           </span>
           {message.timestamp && (
             <span className="message-timestamp">{formatTimestamp(message.timestamp)}</span>

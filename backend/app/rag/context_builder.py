@@ -2,8 +2,9 @@ import logging
 from typing import Any, Literal
 
 from core.config import settings
+from core.games import DEFAULT_GAME
 from rag.retriever import _source_label, retrieve_context
-from hybrid_search.bm25_indexer import INDEX_PATH, build_bm25_index, search_bm25
+from hybrid_search.bm25_indexer import build_bm25_index, index_path, search_bm25
 from hybrid_search.rrf import reciprocal_rank_function
 from hybrid_search.rerank import rerank_documents
 
@@ -13,12 +14,13 @@ RetrievalMode = Literal["dense", "text", "hybrid"]
 RETRIEVAL_MODES: tuple[str, ...] = ("dense", "text", "hybrid")
 
 
-def ensure_bm25_index() -> None:
-    """Build the BM25 index if it is missing, so text/hybrid retrieval never fails on it."""
-    if INDEX_PATH.exists():
+def ensure_bm25_index(game: str = DEFAULT_GAME) -> None:
+    """Build a game's BM25 index if it is missing, so text/hybrid retrieval never fails on it."""
+    path = index_path(game)
+    if path.exists():
         return
-    logger.warning("BM25 index not found at %s; building it now", INDEX_PATH)
-    build_bm25_index()
+    logger.warning("BM25 index for %s not found at %s; building it now", game, path)
+    build_bm25_index(game)
 
 
 def _with_source(chunks: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -29,7 +31,11 @@ def _with_source(chunks: list[dict[str, Any]]) -> list[dict[str, Any]]:
     ]
 
 
-def build_context(query: str, mode: RetrievalMode = "hybrid") -> list[dict[str, Any]]:
+def build_context(
+    query: str,
+    mode: RetrievalMode = "hybrid",
+    game: str = DEFAULT_GAME,
+) -> list[dict[str, Any]]:
     """Return the chunks passed to the LLM, best first, for the chosen retrieval mode.
 
     dense  -> vector search (Chroma) only
@@ -39,14 +45,14 @@ def build_context(query: str, mode: RetrievalMode = "hybrid") -> list[dict[str, 
     top_k = settings.retrieval_top_k
 
     if mode == "dense":
-        chunks = retrieve_context(query=query, limit=top_k)
+        chunks = retrieve_context(query=query, limit=top_k, game=game)
     elif mode == "text":
-        chunks = search_bm25(query=query, limit=top_k)
+        chunks = search_bm25(query=query, limit=top_k, game=game)
     elif mode == "hybrid":
-        fused = reciprocal_rank_function(query)
+        fused = reciprocal_rank_function(query, game=game)
         chunks = rerank_documents(query=query, documents=fused, top_k=top_k)
     else:
         raise ValueError(f"Unknown retrieval mode: {mode}")
 
-    logger.info("Retrieval mode=%s returned %d chunks", mode, len(chunks))
+    logger.info("Retrieval game=%s mode=%s returned %d chunks", game, mode, len(chunks))
     return _with_source(chunks)

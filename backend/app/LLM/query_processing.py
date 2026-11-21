@@ -7,7 +7,8 @@ from rag.context_builder import RetrievalMode, build_context
 from ai.tools.handlers import run_tools
 from utils.time_utils import utc_now_iso
 from LLM.prompt_renderer import render_gemini_prompt
-from ai.tools.definitions import config
+from ai.tools.definitions import get_tool_config
+from core.games import DEFAULT_GAME, GameKey, get_game
 from LLM.llm_errors import handle_gemini_exception
 from LLM.token_estimator import estimator, chunk_selection, history_selection
 import json
@@ -16,7 +17,13 @@ from google.genai import types
 
 logger = logging.getLogger(__name__)
 
-def getResults(query:str, user_id: int, chat_id: int, retrieval_mode: RetrievalMode = "hybrid"):
+def getResults(
+    query: str,
+    user_id: int,
+    chat_id: int,
+    retrieval_mode: RetrievalMode = "hybrid",
+    game: GameKey = DEFAULT_GAME,
+):
     final_text = ""
     try:
         # Chat history
@@ -26,7 +33,7 @@ def getResults(query:str, user_id: int, chat_id: int, retrieval_mode: RetrievalM
         print("After modification: ", modified_history, end="\n\n")
 
         # Context
-        context = build_context(query=query, mode=retrieval_mode)
+        context = build_context(query=query, mode=retrieval_mode, game=game)
         print("Before modification: ", context, end="\n\n")
         modified_context = chunk_selection(context)
         print("After modification: ", modified_context, end="\n\n")
@@ -35,12 +42,14 @@ def getResults(query:str, user_id: int, chat_id: int, retrieval_mode: RetrievalM
             query=query,
             context=modified_context,
             history=modified_history,
+            game_name=get_game(game).name,
         )
+        tool_config = get_tool_config(game)
 
         response = get_gemini_client().models.generate_content(
             model=settings.gemini_model,
             contents=prompt,
-            config=config
+            config=tool_config
         )
 
         if response.function_calls:
@@ -49,7 +58,7 @@ def getResults(query:str, user_id: int, chat_id: int, retrieval_mode: RetrievalM
                 modified_history,
                 prompt,
                 get_gemini_client(),
-                config,
+                tool_config,
             )
         else:
             final_text += response.text or ""
@@ -80,7 +89,13 @@ def getResults(query:str, user_id: int, chat_id: int, retrieval_mode: RetrievalM
             )
 
 
-def getResultsStream(query: str, user_id: int, chat_id: int, retrieval_mode: RetrievalMode = "hybrid"):
+def getResultsStream(
+    query: str,
+    user_id: int,
+    chat_id: int,
+    retrieval_mode: RetrievalMode = "hybrid",
+    game: GameKey = DEFAULT_GAME,
+):
     final_text = ""
     try:
         # Chat history
@@ -88,19 +103,21 @@ def getResultsStream(query: str, user_id: int, chat_id: int, retrieval_mode: Ret
         modified_history = history_selection(history)
 
         # Context
-        context = build_context(query=query, mode=retrieval_mode)
+        context = build_context(query=query, mode=retrieval_mode, game=game)
         modified_context = chunk_selection(context)
 
         prompt = render_gemini_prompt(
             query=query,
             context=modified_context,
             history=modified_history,
+            game_name=get_game(game).name,
         )
+        tool_config = get_tool_config(game)
 
         stream = get_gemini_client().models.generate_content_stream(
             model=settings.gemini_model,
             contents=prompt,
-            config=config
+            config=tool_config
         )
 
         # Collect every part of the model's turn: a tool request can be split across
@@ -128,7 +145,7 @@ def getResultsStream(query: str, user_id: int, chat_id: int, retrieval_mode: Ret
                 modified_history,
                 prompt,
                 get_gemini_client(),
-                config,
+                tool_config,
             )
             if tool_text:
                 final_text += tool_text

@@ -48,5 +48,5 @@ testing.py
 # Eval cache (answers + judge calls)
 backend/eval_results/.cache/
 
-# Generated BM25 index (rebuild: python -m hybrid_search.bm25_indexer)
-backend/bm25_index.pkl
+# Generated BM25 indexes, one per game (rebuild: python -m hybrid_search.bm25_indexer)
+backend/bm25_index*.pkl

@@ -1,34 +1,25 @@
 import React, { useEffect, useRef } from "react";
-import { Crosshair, ShieldAlert, Zap, Skull, Loader2 } from "lucide-react";
+import { Crosshair, ShieldAlert, Zap, Skull, Loader2, UserRound, MapPin, Tag, Gauge } from "lucide-react";
 import MessageBubble from "./MessageBubble";
 import TypingIndicator from "./TypingIndicator";
 import { useChat } from "../../context/ChatContext";
+import { getGameProfile, type PromptIcon } from "../../utils/games";
 
-const SUGGESTED_PROMPTS = [
-  {
-    icon: <Skull size={16} />,
-    title: "Breaker Strategy",
-    prompt: "What is the best tactical strategy to eliminate a Breaker Freaker?",
-  },
-  {
-    icon: <Crosshair size={16} />,
-    title: "Weapon Comparison",
-    prompt: "Compare the SAF rifle and the MWS. Which is better for early-to-mid game?",
-  },
-  {
-    icon: <ShieldAlert size={16} />,
-    title: "Horde Survival",
-    prompt: "What gear and loadout do I need to take on the Iron Butte Horde?",
-  },
-  {
-    icon: <Zap size={16} />,
-    title: "Crafting Intel",
-    prompt: "Where can I reliably scavenge Kerosene and Nest Residue for Incendiary Bolts?",
-  },
-];
+// Icons for the suggested prompts in each game's profile
+const PROMPT_ICONS: Record<PromptIcon, React.ReactNode> = {
+  skull: <Skull size={16} />,
+  crosshair: <Crosshair size={16} />,
+  shield: <ShieldAlert size={16} />,
+  zap: <Zap size={16} />,
+  user: <UserRound size={16} />,
+  map: <MapPin size={16} />,
+  tag: <Tag size={16} />,
+  gauge: <Gauge size={16} />,
+};
 
 export const MessageList: React.FC = () => {
-  const { messages, isMessagesLoading, isQueryProcessing, sendQuery } = useChat();
+  const { messages, isMessagesLoading, isQueryProcessing, sendQuery, game } = useChat();
+  const profile = getGameProfile(game);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -44,7 +35,7 @@ export const MessageList: React.FC = () => {
         </div>
         <h3 className="loading-state-title">Retrieving Tactical Logs...</h3>
         <p className="loading-state-desc">
-          Querying Days Gone conversation archive for selected briefing.
+          Querying {profile.label} conversation archive for selected briefing.
         </p>
       </div>
     );
@@ -58,14 +49,11 @@ export const MessageList: React.FC = () => {
           <Crosshair size={36} />
         </div>
 
-        <h2 className="empty-title">Days Gone Survival Intelligence</h2>
-        <p className="empty-subtitle">
-          Farewell oregon AI assists survivors with Freaker combat tactics, horde pathing,
-          weapon stats, and Oregon wasteland survival strategies.
-        </p>
+        <h2 className="empty-title">{profile.emptyTitle}</h2>
+        <p className="empty-subtitle">{profile.emptySubtitle}</p>
 
         <div className="suggested-prompts-grid">
-          {SUGGESTED_PROMPTS.map((item, idx) => (
+          {profile.prompts.map((item, idx) => (
             <button
               key={idx}
               type="button"
@@ -73,7 +61,7 @@ export const MessageList: React.FC = () => {
               onClick={() => sendQuery(item.prompt)}
             >
               <div className="prompt-card-header">
-                <span className="prompt-card-icon">{item.icon}</span>
+                <span className="prompt-card-icon">{PROMPT_ICONS[item.icon]}</span>
                 <span className="prompt-card-title">{item.title}</span>
               </div>
               <p className="prompt-card-body">{item.prompt}</p>

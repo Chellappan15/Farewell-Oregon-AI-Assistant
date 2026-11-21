@@ -10,6 +10,8 @@ import {
   X,
 } from "lucide-react";
 import Badge from "../common/Badge";
+import { useChat } from "../../context/ChatContext";
+import { getGameProfile } from "../../utils/games";
 import IconButton from "../common/IconButton";
 
 export interface IntelligencePanelProps {
@@ -21,6 +23,7 @@ export const IntelligencePanel: React.FC<IntelligencePanelProps> = ({
   isOpen = true,
   onClose,
 }) => {
+  const profile = getGameProfile(useChat().game);
   if (!isOpen) return null;
 
   return (
@@ -70,7 +73,7 @@ export const IntelligencePanel: React.FC<IntelligencePanelProps> = ({
               <Badge variant="success" size="sm">Ready</Badge>
             </div>
             <p className="subsystem-desc">
-              ChromaDB vector database indexed with Days Gone weapons, Freakers, and tactical survival lore.
+              {profile.knowledgeSummary}
             </p>
             <div className="subsystem-meta">
               <span className="meta-tag">1,240 Chunks Indexed</span>
@@ -109,8 +112,9 @@ export const IntelligencePanel: React.FC<IntelligencePanelProps> = ({
               Function calling enabled with specialized game telemetry tools.
             </p>
             <div className="subsystem-meta">
-              <span className="meta-tag">compare_weapons</span>
-              <span className="meta-tag">zombie_details</span>
+              {profile.tools.map((tool) => (
+                <span key={tool} className="meta-tag">{tool}</span>
+              ))}
             </div>
           </div>
 
@@ -191,7 +195,7 @@ export const IntelligencePanel: React.FC<IntelligencePanelProps> = ({
             </div>
             <div className="telemetry-item">
               <span className="telemetry-label">Game Profile</span>
-              <span className="telemetry-value">Days Gone</span>
+              <span className="telemetry-value">{profile.label}</span>
             </div>
             <div className="telemetry-item">
               <span className="telemetry-label">Health</span>

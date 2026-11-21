@@ -16,12 +16,14 @@ def render_gemini_prompt(
     query: str,
     context: Any,
     history: list[dict[str, Any]],
+    game_name: str = "Days Gone",
 ) -> str:
     """Render the shared Gemini prompt for a chat request."""
-    template = _environment.get_template("days_gone_prompt.j2")
+    template = _environment.get_template("game_prompt.j2")
 
     return template.render(
         current_question=query,
         relevant_context=context,
         conversation_history=history,
+        game_name=game_name,
     )

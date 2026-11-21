@@ -10,6 +10,7 @@ from services.exceptions import ChatNotFoundError
 from utils.time_utils import utc_now_iso
 from LLM.token_estimator import estimator
 from rag.context_builder import RetrievalMode
+from core.games import DEFAULT_GAME, GameKey
 
 def create_chat(user_id: int):
     chat_id = newChat(id=user_id)
@@ -46,14 +47,14 @@ def get_chat_messages(user_id: int, chat_id: int):
     }
 
 
-def process_chat_query(user_id: int, chat_id: int, query: str, retrieval_mode: RetrievalMode = "hybrid"):
+def process_chat_query(user_id: int, chat_id: int, query: str, retrieval_mode: RetrievalMode = "hybrid", game: GameKey = DEFAULT_GAME):
     _save_user_message(user_id, chat_id, query)
-    return getResults(query, user_id=user_id, chat_id=chat_id, retrieval_mode=retrieval_mode)
+    return getResults(query, user_id=user_id, chat_id=chat_id, retrieval_mode=retrieval_mode, game=game)
 
 
-def process_chat_query_stream(user_id: int, chat_id: int, query: str, retrieval_mode: RetrievalMode = "hybrid"):
+def process_chat_query_stream(user_id: int, chat_id: int, query: str, retrieval_mode: RetrievalMode = "hybrid", game: GameKey = DEFAULT_GAME):
     _save_user_message(user_id, chat_id, query)
-    return getResultsStream(query, user_id=user_id, chat_id=chat_id, retrieval_mode=retrieval_mode)
+    return getResultsStream(query, user_id=user_id, chat_id=chat_id, retrieval_mode=retrieval_mode, game=game)
 
 
 def _save_user_message(user_id: int, chat_id: int, query: str) -> None:

@@ -12,19 +12,21 @@ from core.config import settings
 from eval.llm_answers import generate_answer
 from LLM.token_estimator import chunk_selection
 from rag.context_builder import RETRIEVAL_MODES, build_context, ensure_bm25_index
+from core.games import DEFAULT_GAME, get_game
 
 logger = logging.getLogger(__name__)
 
 _SAMPLE_SEED = 42
 _MIN_PER_TYPE = 3
 # Bump when the answer prompt in llm_answers.py changes, so cached answers are not reused.
-_ANSWER_PROMPT_VERSION = "v2"  # v2: production template days_gone_prompt.j2
+_ANSWER_PROMPT_VERSION = "v3"  # v3: shared game_prompt.j2 with the game name
 
-def load_golden_data() -> list[dict]:
-    """Read the golden JSONL file into a list of rows."""
+def load_golden_data(game: str = DEFAULT_GAME) -> list[dict]:
+    """Read a game's golden JSONL file into a list of rows."""
+    golden_path = get_game(game).golden_data
     try:
         data = []
-        with open(settings.golden_data, "r", encoding="utf-8") as file:
+        with open(golden_path, "r", encoding="utf-8") as file:
             for line_number, line in enumerate(file, start=1):
                 if not line.strip():
                     continue
@@ -32,13 +34,13 @@ def load_golden_data() -> list[dict]:
                     data.append(json.loads(line))
                 except json.JSONDecodeError as exc:
                     raise ValueError(
-                        f"Invalid JSON on line {line_number} of {settings.golden_data}: {exc.msg}"
+                        f"Invalid JSON on line {line_number} of {golden_path}: {exc.msg}"
                     ) from exc
         return data
 
     except FileNotFoundError as exc:
-        logger.error("Golden dataset not found: %s", settings.golden_data)
-        raise RuntimeError(f"Golden dataset not found: {settings.golden_data}") from exc
+        logger.error("Golden dataset not found: %s", golden_path)
+        raise RuntimeError(f"Golden dataset not found: {golden_path}") from exc
     except ValueError:
         logger.exception("Golden dataset contains invalid JSON")
         raise
@@ -84,9 +86,9 @@ def _answer_cache() -> Cache | None:
     return Cache(str(Path(settings.eval_cache_dir) / "answers"))
 
 
-def _answer_key(question: str, contexts: list[str]) -> str:
+def _answer_key(question: str, contexts: list[str], game: str) -> str:
     payload = json.dumps(
-        [settings.gemini_model, _ANSWER_PROMPT_VERSION, question, contexts], ensure_ascii=False
+        [settings.gemini_model, _ANSWER_PROMPT_VERSION, game, question, contexts], ensure_ascii=False
     )
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
@@ -99,13 +101,14 @@ def create_dataset() -> tuple[Dataset, list[dict]]:
     list of per-row metadata (id, evaluation_type) in the same order.
     """
     mode = settings.eval_retrieval_mode
+    game = get_game(settings.eval_game).key
     if mode not in RETRIEVAL_MODES:
         raise ValueError(f"EVAL_RETRIEVAL_MODE must be one of {RETRIEVAL_MODES}, got {mode!r}")
     if mode in ("text", "hybrid"):
-        ensure_bm25_index()
+        ensure_bm25_index(game)
 
     try:
-        golden_rows = select_rows(load_golden_data(), eval_size())
+        golden_rows = select_rows(load_golden_data(game), eval_size())
         cache = _answer_cache()
         rows = []
         meta = []
@@ -114,12 +117,12 @@ def create_dataset() -> tuple[Dataset, list[dict]]:
 
         for item in golden_rows:
             try:
-                chunks = chunk_selection(build_context(item["question"], mode))
+                chunks = chunk_selection(build_context(item["question"], mode, game))
                 contexts = [chunk["text"] for chunk in chunks]
-                key = _answer_key(item["question"], contexts)
+                key = _answer_key(item["question"], contexts, game)
                 answer = cache.get(key) if cache is not None else None
                 if answer is None:
-                    answer = generate_answer(item["question"], chunks)
+                    answer = generate_answer(item["question"], chunks, get_game(game).name)
                     if cache is not None and answer:
                         cache.set(key, answer)
                     if settings.eval_sleep > 0:
@@ -150,8 +153,8 @@ def create_dataset() -> tuple[Dataset, list[dict]]:
         if cache is not None:
             cache.close()
         logger.info(
-            "Created eval dataset (retrieval=%s): %d rows, %d failed, %d selected, %d answers from cache",
-            mode, len(rows), failed, len(golden_rows), cache_hits,
+            "Created eval dataset (game=%s, retrieval=%s): %d rows, %d failed, %d selected, %d answers from cache",
+            game, mode, len(rows), failed, len(golden_rows), cache_hits,
         )
         if not rows:
             raise RuntimeError("No eval rows were created; check the logs above.")

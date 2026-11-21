@@ -55,6 +55,8 @@ export type GetChatMessagesResponse = ApiResponse<ChatMessage[]>;
 
 export type RetrievalMode = "dense" | "text" | "hybrid";
 
+export type GameKey = "days_gone" | "gta6";
+
 export interface ChatContextType {
   chatList: ChatList[];
   activeChatId: number | null;
@@ -72,5 +74,7 @@ export interface ChatContextType {
   sendQuery: (query: string) => Promise<void>;
   retrievalMode: RetrievalMode;
   setRetrievalMode: (mode: RetrievalMode) => void;
+  game: GameKey;
+  setGame: (game: GameKey) => void;
   // clearActiveChat: () => void;
 }

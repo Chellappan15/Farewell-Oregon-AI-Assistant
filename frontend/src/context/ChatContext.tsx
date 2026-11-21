@@ -8,6 +8,7 @@ import type {
   ChatContextType,
   ErrorInterface,
   RetrievalMode,
+  GameKey,
 } from "../types/chat";
 import serverStatus from "../services/serverDetails";
 import { useAuth } from "./AuthContext";
@@ -42,6 +43,17 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   const setRetrievalMode = (mode: RetrievalMode) => {
     setRetrievalModeState(mode);
     localStorage.setItem("dg_retrieval_mode", mode);
+  };
+
+  // Game chosen in the input box (remembered across reloads)
+  const [game, setGameState] = useState<GameKey>(() => {
+    const saved = localStorage.getItem("dg_game");
+    return saved === "gta6" || saved === "days_gone" ? saved : "days_gone";
+  });
+
+  const setGame = (next: GameKey) => {
+    setGameState(next);
+    localStorage.setItem("dg_game", next);
   };
 
   // Server status
@@ -207,7 +219,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
           const last = prev[prev.length - 1];
           return [...prev.slice(0, -1), { ...last, content: last.content + chunk }];
         });
-      }, retrievalMode);
+      }, retrievalMode, game);
 
       // If chat had default title "New chat", update title with query excerpt
       setChatList((prev) =>
@@ -266,6 +278,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     sendQuery: handleSendQuery,
     retrievalMode,
     setRetrievalMode,
+    game,
+    setGame,
     // clearActiveChat: handleClearActiveChat,
   };
 

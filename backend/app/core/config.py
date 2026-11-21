@@ -84,6 +84,8 @@ class Settings:
     eval_retrieval_mode: str = field(
         default_factory=lambda: _env("EVAL_RETRIEVAL_MODE", "hybrid").strip().lower()
     )
+    # Game the eval runs on: "days_gone" or "gta6" (picks its golden set and indexes).
+    eval_game: str = field(default_factory=lambda: _env("EVAL_GAME", "days_gone").strip().lower())
     # Parallel judge calls. Keep 1 on the free tier; raise it once billing is enabled.
     eval_workers: int = field(default_factory=lambda: int(_env("EVAL_WORKERS", "1")))
     # Pause after each fresh answer-generation call (seconds). 0 once billing is enabled.
@@ -96,7 +98,7 @@ class Settings:
 
     # API
     cors_origins: list[str] = field(
-        default_factory=lambda: _env_list("CORS_ORIGINS", "http://localhost:5173")
+        default_factory=lambda: _env_list("CORS_ORIGINS", "*")
     )
 
     # Context token budget

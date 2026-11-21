@@ -1,6 +1,9 @@
+import argparse
 import hashlib
 import json
 import logging
+
+from core.games import DEFAULT_GAME, GAME_KEYS
 
 from rag.embeddings import embedder
 from rag.retriever import get_collection
@@ -14,8 +17,8 @@ def _chunk_id(content: str, metadata: dict) -> str:
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:32]
 
 
-def index_documents() -> int:
-    result = embedder()
+def index_documents(game: str = DEFAULT_GAME) -> int:
+    result = embedder(game)
     chunks = result["chunks"]
     embeddings = result["embeddings"].tolist()
 
@@ -25,7 +28,7 @@ def index_documents() -> int:
         chunk_id = _chunk_id(chunk.page_content, chunk.metadata)
         records.setdefault(chunk_id, (chunk.page_content, chunk.metadata, embedding))
 
-    collection = get_collection()
+    collection = get_collection(game)
 
     # Remove chunks that no longer exist in the source document.
     existing_ids = set(collection.get(include=[])["ids"])
@@ -40,23 +43,27 @@ def index_documents() -> int:
         metadatas=[records[i][1] for i in ids],
         embeddings=[records[i][2] for i in ids],
     )
-    logger.info("Indexed %d chunks, removed %d stale chunks", len(ids), len(stale_ids))
+    logger.info("Indexed %d %s chunks, removed %d stale chunks", len(ids), game, len(stale_ids))
 
     # Keep the BM25 index in sync with Chroma (imported here to avoid a circular import).
     from hybrid_search.bm25_indexer import build_bm25_index
-    build_bm25_index()
+    build_bm25_index(game)
 
     return len(ids)
 
 
-def ensure_vector_index() -> None:
-    """Index the knowledge base if the Chroma collection is empty (e.g. a fresh container)."""
-    if get_collection().count() > 0:
+def ensure_vector_index(game: str = DEFAULT_GAME) -> None:
+    """Index a game's knowledge base if its Chroma collection is empty (e.g. a fresh container)."""
+    if get_collection(game).count() > 0:
         return
-    logger.warning("Chroma collection is empty; indexing the knowledge base now")
-    index_documents()
+    logger.warning("Chroma collection for %s is empty; indexing the knowledge base now", game)
+    index_documents(game)
 
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    index_documents()
+    parser = argparse.ArgumentParser(description="Index a game's knowledge base (Chroma + BM25)")
+    parser.add_argument("--game", choices=GAME_KEYS, help="Game to index (default: all games)")
+    args = parser.parse_args()
+    for key in [args.game] if args.game else GAME_KEYS:
+        index_documents(key)

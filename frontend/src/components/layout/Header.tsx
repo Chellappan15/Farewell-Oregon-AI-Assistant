@@ -7,6 +7,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useChat } from "../../context/ChatContext";
+import { getGameProfile } from "../../utils/games";
 import IconButton from "../common/IconButton";
 import Badge from "../common/Badge";
 
@@ -21,7 +22,8 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleIntelligence,
   isIntelligenceOpen = true,
 }) => {
-  const { isMessagesLoading, serverStatus } = useChat();
+  const { isMessagesLoading, serverStatus, game } = useChat();
+  const profile = getGameProfile(game);
 
   return (
     <header className="app-header">
@@ -37,12 +39,12 @@ export const Header: React.FC<HeaderProps> = ({
 
         <div className="header-branding">
           <div className="header-title-wrapper">
-            <h1 className="header-title">Days Gone Assistant</h1>
+            <h1 className="header-title">{profile.title}</h1>
             <Badge variant={serverStatus ? "success" : "warning"} size="sm" dot dotClassName={serverStatus ? "badge-dot-success" : "badge-dot-failure"} className="header-status-badge">
               <p style={{color: serverStatus ? "#10b981" : "#ef4444"}}>{serverStatus ? "AI Online" : "AI Offline"}</p>
             </Badge>
           </div>
-          <p className="header-subtitle">Survival intelligence for Days Gone</p>
+          <p className="header-subtitle">{profile.subtitle}</p>
         </div>
       </div>
 
