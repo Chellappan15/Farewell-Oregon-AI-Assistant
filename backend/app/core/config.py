@@ -96,6 +96,9 @@ class Settings:
         default_factory=lambda: _env("EVAL_CACHE_DIR", str(_BACKEND_DIR / "eval_results" / ".cache"))
     )
 
+    # Logging: DEBUG, INFO, WARNING, ERROR
+    log_level: str = field(default_factory=lambda: _env("LOG_LEVEL", "INFO").strip().upper())
+
     # API
     cors_origins: list[str] = field(
         default_factory=lambda: _env_list("CORS_ORIGINS", "*")

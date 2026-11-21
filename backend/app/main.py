@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request, status
@@ -13,6 +14,16 @@ from services.exceptions import ChatNotFoundError
 from rag.context_builder import ensure_bm25_index
 from rag.indexer import ensure_vector_index
 from core.games import GAME_KEYS
+from db.connect import get_db_connection
+from hybrid_search.bm25_indexer import index_path
+from rag.retriever import get_collection
+
+# Without this, every logger.info in the app is dropped (Python's default level is WARNING)
+logging.basicConfig(
+    level=settings.log_level,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+)
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -64,6 +75,46 @@ async def validation_error_handler(request: Request, exc: RequestValidationError
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         content={"success": False, "message": message, "detail": message},
+    )
+
+
+@app.get("/health")
+def health():
+    """Liveness: the process is up and answering. Checks nothing else."""
+    return {"status": "ok"}
+
+
+@app.get("/ready")
+def ready():
+    """Readiness: MySQL answers and every game's indexes exist. 503 if anything is missing."""
+    checks: dict[str, bool] = {}
+
+    try:
+        conn = get_db_connection()
+        try:
+            cursor = conn.cursor()
+            cursor.execute("SELECT 1")
+            cursor.fetchall()
+            cursor.close()
+            checks["mysql"] = True
+        finally:
+            conn.close()
+    except Exception:
+        logger.exception("Readiness check: MySQL unavailable")
+        checks["mysql"] = False
+
+    for game in GAME_KEYS:
+        try:
+            checks[f"{game}_vector_index"] = get_collection(game).count() > 0
+        except Exception:
+            logger.exception("Readiness check: Chroma unavailable for %s", game)
+            checks[f"{game}_vector_index"] = False
+        checks[f"{game}_bm25_index"] = index_path(game).exists()
+
+    is_ready = all(checks.values())
+    return JSONResponse(
+        status_code=status.HTTP_200_OK if is_ready else status.HTTP_503_SERVICE_UNAVAILABLE,
+        content={"status": "ready" if is_ready else "not_ready", "checks": checks},
     )
 
 

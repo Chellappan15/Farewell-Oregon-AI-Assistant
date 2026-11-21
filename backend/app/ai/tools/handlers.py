@@ -60,6 +60,7 @@ def run_tools(
     prompt: str,
     client,
     config: types.GenerateContentConfig,
+    stats: dict | None = None,
 ) -> str:
     """Resolve tool calls until the model returns a plain answer.
 
@@ -77,6 +78,8 @@ def run_tools(
         calls = _function_calls(model_content)
         if not calls:
             return _text(model_content)
+        if stats is not None:
+            stats["tool_rounds"] = round_number
 
         logger.info("Tool round %d: %s", round_number, [call.name for call in calls])
         contents.append(model_content)

@@ -13,6 +13,8 @@ from LLM.llm_errors import handle_gemini_exception
 from LLM.token_estimator import estimator, chunk_selection, history_selection
 import json
 
+from utils.request_timing import RequestTimer
+
 from google.genai import types
 
 logger = logging.getLogger(__name__)
@@ -25,15 +27,18 @@ def getResults(
     game: GameKey = DEFAULT_GAME,
 ):
     final_text = ""
+    timer = RequestTimer(game=game, mode=retrieval_mode, stream=False)
     try:
         # Chat history
         history = get_chat_history(chat_id=chat_id, user_id=user_id)
+        timer.lap("history")
         print("Before modification: ", history, end="\n\n")
         modified_history = history_selection(history)
         print("After modification: ", modified_history, end="\n\n")
 
         # Context
         context = build_context(query=query, mode=retrieval_mode, game=game)
+        timer.lap("retrieval")
         print("Before modification: ", context, end="\n\n")
         modified_context = chunk_selection(context)
         print("After modification: ", modified_context, end="\n\n")
@@ -59,9 +64,11 @@ def getResults(
                 prompt,
                 get_gemini_client(),
                 tool_config,
+                stats=timer.fields,
             )
         else:
             final_text += response.text or ""
+        timer.lap("llm")
 
         return ({
             "data": final_text,
@@ -70,11 +77,13 @@ def getResults(
         })
     
     except Exception as e:
+        timer.fields["status"] = "error"
         return ({
             'error': handle_gemini_exception(e)
         })
     # Save and return final output
     finally:
+        timer.log()
         if final_text:
             chatProgress(
                 id=user_id,
@@ -97,14 +106,17 @@ def getResultsStream(
     game: GameKey = DEFAULT_GAME,
 ):
     final_text = ""
+    timer = RequestTimer(game=game, mode=retrieval_mode, stream=True)
     try:
         # Chat history
         history = get_chat_history(chat_id=chat_id, user_id=user_id)
         modified_history = history_selection(history)
+        timer.lap("history")
 
         # Context
         context = build_context(query=query, mode=retrieval_mode, game=game)
         modified_context = chunk_selection(context)
+        timer.lap("retrieval")
 
         prompt = render_gemini_prompt(
             query=query,
@@ -135,6 +147,7 @@ def getResultsStream(
 
             # Stream text live until the model asks for a tool
             if not wants_tools and chunk.text:
+                timer.since_start("first_token")
                 final_text += chunk.text
                 yield chunk.text
 
@@ -146,10 +159,13 @@ def getResultsStream(
                 prompt,
                 get_gemini_client(),
                 tool_config,
+                stats=timer.fields,
             )
             if tool_text:
+                timer.since_start("first_token")
                 final_text += tool_text
                 yield tool_text
+        timer.lap("llm")
 
         logger.info("Gemini stream completed with %d characters", len(final_text))
 
@@ -157,10 +173,12 @@ def getResultsStream(
         # Headers are already sent, so the error must be streamed as text.
         # (A `return` inside a generator just ends the stream silently.)
         logger.exception("Streaming query failed for chat_id=%s", chat_id)
+        timer.fields["status"] = "error"
         error = handle_gemini_exception(e)
         yield ("\n\n" if final_text else "") + error["message"]
 
     finally:
+        timer.log()
         # Save whatever the model produced; never save an empty answer
         if final_text:
             chatProgress(
